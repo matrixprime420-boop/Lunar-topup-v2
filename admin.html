@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>LUNAR TOPUP - Admin Control Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#6D28D9; /* Red */
+  --p2:#8B5CF6;
+  --pd:#4C1D95;
+  --bg:#F8FAFC;
+  --card:#FFFFFF;
+  --tx:#0F172A;
+  --mt:#64748B;
+  --stk:#0F172A; /* Black Stroke */
+  --r:16px;
+  --ok:#10B981;
+  --warn:#F59E0B;
+  --grad:linear-gradient(135deg, #5B21B6, #8B5CF6);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--tx); padding-bottom: 80px; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; outline: none; }
+
+/* Common Styles */
+.stk { background: var(--card); border-radius: var(--r); border: 1.5px solid #E2E8F0; border-bottom: 4px solid var(--stk); }
+.btn { background: var(--p); color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 15px; border-bottom: 4px solid var(--pd); transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: translateY(2px); border-bottom-width: 2px; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn.ghost { background: #fff; color: var(--p); border: 1.5px solid var(--p); border-bottom: 4px solid var(--pd); }
+.btn.red { background: #EF4444; border-bottom-color: #B91C1C; }
+.btn.green { background: #10B981; border-bottom-color: #047857; }
+.inp { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #CBD5E1; border-bottom: 3px solid var(--stk); font-size: 14px; background: #fff; transition: 0.2s; }
+.inp:focus { border-color: var(--p); box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.1); }
+select.inp { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F172A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
+.lbl { display: block; font-size: 13px; font-weight: 700; margin: 12px 0 6px; color: var(--mt); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.card { padding: 16px; margin-bottom: 14px; }
+.card h3 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--p); }
+.card h3 svg { width: 20px; height: 20px; }
+
+/* Header */
+header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #E2E8F0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+header .logo { font-size: 18px; font-weight: 800; color: var(--p); display: flex; align-items: center; gap: 8px; }
+header .logo span { background: var(--p); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px; }
+
+/* Nav */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; justify-content: space-around; padding: 8px 4px; border-top: 1px solid #E2E8F0; z-index: 100; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+.nav button { background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--mt); padding: 6px; border-radius: 8px; transition: 0.2s; }
+.nav button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.2; transition: 0.2s; }
+.nav button.on { color: var(--p); }
+.nav button.on svg { transform: translateY(-2px); stroke: var(--p); }
+
+/* Sections */
+.section { display: none; padding: 16px; animation: fadeUp 0.3s ease; }
+.section.on { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Dashboard Stats */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat-box { padding: 16px; text-align: center; }
+.stat-box h4 { font-size: 13px; color: var(--mt); font-weight: 600; margin-bottom: 4px; }
+.stat-box b { font-size: 22px; color: var(--p); }
+
+/* List Items */
+.list-item { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.list-item .info b { display: block; font-size: 14px; margin-bottom: 2px; }
+.list-item .info span { color: var(--mt); font-size: 12px; }
+.list-item .actions { display: flex; gap: 6px; }
+.list-item .actions button { padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #fff; }
+.btn-edit { background: #6D28D9; }
+.btn-del { background: #EF4444; }
+.btn-ok { background: #10B981; }
+.btn-warn { background: #8B5CF6; }
+
+/* Badges */
+.badge { padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+.badge.pending { background: #FEF3C7; color: #B45309; }
+.badge.approved, .badge.completed { background: #D1FAE5; color: #047857; }
+.badge.rejected { background: #FFE4E6; color: #BE123C; }
+
+/* Modal */
+.modal-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+.modal-mask.on { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } }
+.modal-box { background: #fff; width: 100%; max-width: 400px; border-radius: 20px; padding: 20px; max-height: 90vh; overflow-y: auto; animation: popIn 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } }
+.modal-box h3 { margin-bottom: 16px; color: var(--p); }
+.modal-box .close-btn { position: absolute; top: 12px; right: 12px; background: #F1F5F9; border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; }
+
+/* Tabs inside sections */
+.sub-tabs { display: flex; background: #F1F5F9; padding: 4px; border-radius: 10px; margin-bottom: 16px; }
+.sub-tabs button { flex: 1; padding: 8px; border-radius: 8px; background: none; font-weight: 700; font-size: 13px; color: var(--mt); }
+.sub-tabs button.on { background: #fff; color: var(--p); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+/* Loader */
+.loader { position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(3px); z-index: 2000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+.loader.on { display: flex; }
+.spin { width: 40px; height: 40px; border: 4px solid #F1F5F9; border-top-color: var(--p); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--tx); color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 600; z-index: 3000; opacity: 0; pointer-events: none; transition: 0.3s; white-space: nowrap; }
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Login */
+.login-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
+.login-box { width: 100%; max-width: 350px; padding: 30px 20px; }
+.login-box .logo { margin-bottom: 20px; }
+
+/* Misc */
+.countdown { font-family: monospace; font-size: 12px; font-weight: 700; color: #6D28D9; background: #F3EDFF; padding: 2px 8px; border-radius: 4px; }
+.empty-state { text-align: center; padding: 30px 20px; color: var(--mt); }
+
+/* LUNAR TOPUP Admin Control Center refinements */
+body{background:linear-gradient(180deg,#f8f6ff 0%,#f4f6fc 42%,#f8f9fd 100%)}
+header{background:rgba(255,255,255,.94);border-bottom-color:#e8e0f6;box-shadow:0 8px 26px -18px rgba(55,25,105,.35)}
+header .logo{color:var(--p);letter-spacing:.1px}
+header .logo span{background:var(--grad);border-radius:999px;padding:5px 10px;letter-spacing:.6px}
+.section{width:100%;max-width:1180px;margin:0 auto;padding:22px 18px 110px}
+.section>h2{font-size:22px;font-weight:800;letter-spacing:-.3px}
+.card,.stat-box{box-shadow:0 10px 28px -20px rgba(53,25,100,.35);border-color:#e9e2f5}
+.card h3{color:var(--p);font-weight:800}
+.btn{background:var(--grad);border-bottom-color:var(--pd);box-shadow:0 8px 18px -13px rgba(109,40,217,.75)}
+.btn.ghost{background:#fff;color:var(--p);border-color:#d9c9f6;border-bottom-color:var(--pd)}
+.btn.red,.btn-del{background:#dc365b}
+.inp{border-color:#e0d9ed;border-bottom-color:#362b4d;background:#fff}
+.inp:focus{border-color:var(--p);box-shadow:0 0 0 4px rgba(109,40,217,.12)}
+.list-item{border-color:#e9e2f5;box-shadow:0 6px 18px -16px rgba(34,18,66,.28);gap:10px}
+.nav{justify-content:flex-start;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:8px max(8px,calc((100vw - 1180px)/2)) 9px;gap:4px}
+.nav::-webkit-scrollbar{display:none}
+.nav button{flex:0 0 auto;min-width:66px;padding:7px 10px;font-size:10.5px}
+.nav button.on{color:var(--p);background:#f3edff}
+.nav button.on svg{stroke:var(--p)}
+.login-wrapper{background:radial-gradient(circle at 15% 15%,rgba(167,139,250,.24),transparent 32%),radial-gradient(circle at 90% 80%,rgba(109,40,217,.16),transparent 35%),linear-gradient(145deg,#160b2c,#28104d 52%,#120b21)}
+.login-box{max-width:390px;padding:34px 26px;border:1px solid rgba(255,255,255,.45);border-bottom:5px solid #4c1d95;border-radius:26px;box-shadow:0 26px 80px rgba(0,0,0,.3)}
+.login-box .logo{width:76px;height:76px;border-radius:24px;background:linear-gradient(135deg,#5b21b6,#a78bfa);display:grid;place-items:center;margin:0 auto 18px;box-shadow:0 16px 32px rgba(91,33,182,.3)}
+.login-box .logo svg{width:54px;height:54px}
+.login-box h2{font-size:25px;font-weight:800;letter-spacing:-.5px}
+.login-box .login-brand{font-size:11px;letter-spacing:1.8px;font-weight:800;color:#8b5cf6;margin-bottom:8px}
+.login-box .login-note{padding:10px 12px;border-radius:12px;background:#f7f3ff;color:#76658f;font-size:11px;line-height:1.5;margin-top:14px}
+.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat-box{text-align:left;position:relative;overflow:hidden;min-height:92px;background:linear-gradient(150deg,#fff,#faf8ff)}
+.stat-box:after{content:"";position:absolute;right:-18px;top:-25px;width:76px;height:76px;border-radius:50%;background:rgba(139,92,246,.08)}
+.stat-box b{font-size:25px;position:relative;z-index:1}
+.quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.quick-actions .btn{width:100%}
+.section-hint{font-size:12px;line-height:1.55;color:var(--mt);margin-top:8px}
+.admin-warning{background:#fff8e7;border:1px solid #f5dca0;border-radius:12px;padding:11px 12px;color:#80570a;font-size:11.5px;line-height:1.55;margin-top:12px}
+.inline-filters{display:grid;grid-template-columns:1fr 140px;gap:9px;margin:12px 0}
+.user-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}
+.user-detail-tile{background:#f8f5ff;border:1px solid #e8defa;border-radius:12px;padding:11px}
+.user-detail-tile small{display:block;color:var(--mt);font-size:11px}
+.user-detail-tile b{display:block;margin-top:4px;overflow-wrap:anywhere}
+@media(min-width:760px){.stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.login-box{padding:38px 30px}.inline-filters{grid-template-columns:minmax(300px,1fr) 180px}}
+@media(max-width:420px){.section{padding:17px 12px 105px}.list-item{align-items:flex-start}.list-item .actions{flex-wrap:wrap;justify-content:flex-end}.inline-filters{grid-template-columns:1fr 112px}}
+
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div class="loader" id="loader"><div class="spin"></div><b style="color:var(--p)">Processing...</b></div>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-wrapper">
+  <div class="login-box stk">
+    <div class="logo">
+      <svg width="60" height="60" viewBox="0 0 48 48"><rect width="48" height="48" rx="13" fill="#6D28D9"/><path d="M24 9l12 9-12 21L12 18z" fill="#fff" opacity=".95"/><path d="M12 18h24M24 9l-5 9 5 21 5-21z" stroke="#6D28D9" stroke-width="1.6" fill="none"/></svg>
+    </div>
+    <div class="login-brand">LUNAR TOPUP · CONTROL CENTER</div>
+    <h2 style="color:var(--p);margin-bottom:8px">Welcome back</h2>
+    <p style="color:var(--mt);font-size:13px;margin-bottom:20px">Sign in with your server-configured admin credentials</p>
+    <input type="text" id="adminUsername" class="inp" placeholder="Admin username" autocomplete="username">
+    <input type="password" id="adminPin" class="inp" placeholder="Admin password" autocomplete="current-password" style="margin-top:10px;text-align:center">
+    <button class="btn" style="margin-top:16px" onclick="login()">Unlock Admin Dashboard</button>
+    <div class="login-note">Credentials are checked by the server. Keep Firebase service-account and payment credentials in Render environment variables or encrypted Admin Settings; never commit them to GitHub.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="adminApp" style="display:none">
+  <header>
+    <div class="logo"><svg width="24" height="24" viewBox="0 0 48 48"><rect width="48" height="48" rx="13" fill="#6D28D9"/><path d="M24 9l12 9-12 21L12 18z" fill="#fff" opacity=".95"/></svg> LUNAR TOPUP <span>ADMIN</span></div>
+    <button class="btn ghost" style="width:auto;padding:6px 12px;font-size:12px" onclick="logout()">Logout</button>
+  </header>
+
+  <!-- 1. DASHBOARD -->
+  <div class="section on" id="sec-dash">
+    <h2 style="margin-bottom:16px;color:var(--p)">Dashboard Overview</h2>
+    <div class="stats-grid">
+      <div class="stat-box stk"><h4>Total Orders</h4><b id="dTotalOrders">0</b></div>
+      <div class="stat-box stk"><h4>Pending Orders</h4><b id="dPendingOrders" style="color:#F59E0B">0</b></div>
+      <div class="stat-box stk"><h4>New Users</h4><b id="dNewUsers">0</b></div>
+      <div class="stat-box stk"><h4>Add Money Req</h4><b id="dMoneyReq" style="color:#8B5CF6">0</b></div>
+      <div class="stat-box stk"><h4>Today's Sales</h4><b id="dProfit" style="color:#10B981">৳0</b></div>
+      <div class="stat-box stk"><h4>Completed Orders</h4><b id="dCompletedOrders">0</b></div>
+      <div class="stat-box stk"><h4>Total Users</h4><b id="dTotalUsers">0</b></div>
+      <div class="stat-box stk"><h4>Wallet Liability</h4><b id="dWalletLiability">৳0</b></div>
+    </div>
+
+    <div class="card stk" style="margin-top:20px">
+      <h3>Quick Actions</h3>
+      <div class="quick-actions">
+        <button class="btn ghost" onclick="go('settings')">Settings</button>
+        <button class="btn ghost" onclick="go('users')">User Management</button>
+        <button class="btn ghost" onclick="go('requests')">Deposit Requests</button>
+        <button class="btn ghost" onclick="go('orders')">Order Management</button>
+        <button class="btn ghost" onclick="go('products')">Diamond Packages</button>
+        <button class="btn ghost" onclick="go('sites')">Other Sites</button>
+      </div>
+    </div>
+
+    <div class="card stk">
+      <h3>ZR PAY BD Hosted Checkout</h3>
+      <p class="section-hint">Customer deposits are credited only after the server verifies a successful payment, the exact amount and your merchant order ID through ZR PAY BD. The Brand Key is stored encrypted, not in storefront HTML.</p>
+      <div id="zrPayDashboardStatus" class="admin-warning">Checkout needs your provider-confirmed create/verify JSON templates and response field mapping in Render environment variables before live payments can be enabled.</div>
+    </div>
+  </div>
+
+  <!-- 2. SETTINGS -->
+  <div class="section" id="sec-settings">
+    <h2 style="margin-bottom:16px;color:var(--p)">App Settings</h2>
+    
+    <div class="card stk">
+      <h3>Logos & Branding</h3>
+      <label class="lbl">Logo 1 URL (Top Bar)</label>
+      <input class="inp" id="sLogo1" placeholder="https://...">
+      <label class="lbl">Logo 2 URL (Others)</label>
+      <input class="inp" id="sLogo2" placeholder="https://...">
+    </div>
+
+    <div class="card stk">
+      <h3>Home Notice Board</h3>
+      <label class="lbl">Notice Text</label>
+      <input class="inp" id="sNoticeText" placeholder="Welcome to LUNAR TOPUP">
+      <label class="lbl">Notice Color (Hex)</label>
+      <input class="inp" type="color" id="sNoticeColor" value="#6D28D9" style="height:40px;padding:4px">
+    </div>
+
+    <div class="card stk">
+      <h3>First Popup Notice</h3>
+      <label class="lbl">Show welcome popup</label>
+      <select class="inp" id="sPopEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select>
+      <label class="lbl">Popup Heading</label>
+      <input class="inp" id="sPopTitle" placeholder="LUNAR TOPUP">
+      <label class="lbl">Popup Image URL</label>
+      <input class="inp" id="sPopImg" placeholder="https://...">
+      <label class="lbl">Popup Message</label>
+      <textarea class="inp" id="sPopText" rows="3" placeholder="Welcome to LUNAR TOPUP..."></textarea>
+      <p class="section-hint">The storefront displays this as a premium welcome card the first time a visitor opens the site in a session.</p>
+    </div>
+
+    <div class="card stk">
+      <h3>Support Links (FAB)</h3>
+      <label class="lbl">WhatsApp Link</label>
+      <input class="inp" id="sWaLink" placeholder="https://wa.me/...">
+      <label class="lbl">Telegram Link</label>
+      <input class="inp" id="sTgLink" placeholder="https://t.me/...">
+      <label class="lbl">Telegram Channel Link (Footer)</label>
+      <input class="inp" id="sTgChannel" placeholder="https://t.me/...">
+    </div>
+
+    <div class="card stk">
+      <h3>App Configurations</h3>
+      <label class="lbl">Minimum Add Money (BDT)</label>
+      <input class="inp" type="number" id="sMinAdd" placeholder="10">
+      <label class="lbl">Tutorial Video Link</label>
+      <input class="inp" id="sTutorial" placeholder="https://youtube.com/...">
+      <label class="lbl">Player ID lookup endpoint</label>
+      <input class="inp" id="sNameApi" value="/api/game/lookup" readonly>
+      <p class="section-hint">The storefront uses the secured server proxy. Only the encrypted GamesKinbo API key is sent to the provider; it is never exposed in the browser.</p>
+      <label class="lbl">GamesKinbo Free Fire API Key (encrypted on server)</label>
+      <input class="inp" id="sGameskinboKey" type="password" autocomplete="new-password" placeholder="Paste API key; saved value is never shown again">
+      <small class="section-hint" id="gameskinboKeyStatus">API key status: checking…</small>
+      <label class="lbl">ZR PAY BD Brand Key (encrypted on server)</label>
+      <input class="inp" id="sZrPayBrandKey" type="password" autocomplete="new-password" placeholder="Paste Brand Key; saved value is never shown again">
+      <small class="section-hint" id="zrPayKeyStatus">Brand key status: checking…</small>
+      <label class="lbl">ZR PAY checkout methods (comma separated)</label>
+      <input class="inp" id="sZrPayMethods" placeholder="bKash, Nagad, Rocket, Upay">
+      <p class="section-hint">Hosted checkout displays the methods enabled in your ZR PAY merchant account. API field mapping must match their current merchant documentation.</p>
+      <label class="lbl">App Download Link</label>
+      <input class="inp" id="sAppLink" placeholder="https://play.google.com/...">
+    </div>
+
+    <div class="card stk">
+      <h3>AI Chat API Setup</h3>
+      <label class="lbl">API Endpoint URL</label>
+      <input class="inp" id="sAiUrl" placeholder="https://api.openai.com/v1/chat/completions">
+      <label class="lbl">API Key (encrypted on server)</label>
+      <input class="inp" id="sAiKey" type="password" autocomplete="new-password" placeholder="Paste AI API key">
+      <small class="section-hint" id="aiKeyStatus">Configured status: checking…</small>
+      <label class="lbl">Model Name</label>
+      <input class="inp" id="sAiModel" placeholder="gpt-4o-mini">
+    </div>
+
+    <button class="btn" onclick="saveSettings()">Save All Settings</button>
+  </div>
+
+  <!-- 3. CATEGORIES & THEMES -->
+  <div class="section" id="sec-cats">
+    <h2 style="margin-bottom:16px;color:var(--p)">Categories & Themes</h2>
+    <div class="sub-tabs">
+      <button class="on" onclick="catTab('theme',this)">Themes</button>
+      <button onclick="catTab('cat',this)">Categories</button>
+      <button onclick="catTab('flash',this)">Flash Sales</button>
+    </div>
+
+    <!-- Themes -->
+    <div id="cat-theme">
+      <button class="btn" style="margin-bottom:12px" onclick="openModal('modalTheme')">+ Add New Theme</button>
+      <div id="themeList"></div>
+    </div>
+
+    <!-- Categories -->
+    <div id="cat-cat" style="display:none">
+      <button class="btn" style="margin-bottom:12px" onclick="openModal('modalCat')">+ Add New Category</button>
+      <div id="catList"></div>
+    </div>
+
+    <!-- Flash Sales -->
+    <div id="cat-flash" style="display:none">
+      <button class="btn" style="margin-bottom:12px" onclick="openModal('modalFlashCat')">+ Add Flash Category</button>
+      <button class="btn ghost" style="margin-bottom:12px" onclick="openModal('modalFlashProd')">+ Add Flash Product</button>
+      <div id="flashList"></div>
+      <h3 style="margin-top:20px">Flash Products</h3>
+      <div id="flashProdList"></div>
+    </div>
+  </div>
+
+  <!-- 4. PRODUCTS -->
+  <div class="section" id="sec-products">
+    <h2 style="margin-bottom:16px;color:var(--p)">Diamond Packages</h2>
+    <button class="btn" style="margin-bottom:12px" onclick="openModal('modalProd')">+ Add New Package</button>
+    <div id="prodList"></div>
+  </div>
+
+  <!-- 5. USERS -->
+  <div class="section" id="sec-users">
+    <h2 style="margin-bottom:16px;color:var(--p)">User Management</h2>
+    <div class="inline-filters"><input class="inp" id="userSearch" placeholder="Search name, email or user ID..." oninput="renderUsers(this.value)"><select class="inp" id="userStatusFilter" onchange="renderUsers($('userSearch').value)"><option value="all">All users</option><option value="active">Active</option><option value="banned">Banned</option></select></div>
+    <div id="userList"></div>
+  </div>
+
+  <!-- 6. REQUESTS (Add Money) -->
+  <div class="section" id="sec-requests">
+    <h2 style="margin-bottom:16px;color:var(--p)">Deposit Requests</h2>
+    <div class="inline-filters"><input class="inp" id="reqSearch" placeholder="Search TrxID, user or gateway..." oninput="renderRequests()"><select class="inp" id="reqStatusFilter" onchange="renderRequests()"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div>
+    <div id="reqList"></div>
+  </div>
+
+  <!-- 7. ORDERS -->
+  <div class="section" id="sec-orders">
+    <h2 style="margin-bottom:16px;color:var(--p)">Order Management</h2>
+    <div class="inline-filters"><input class="inp" id="orderSearch" placeholder="Search order ID, player UID or user..." oninput="renderOrders()"><select class="inp" id="orderStatusFilter" onchange="renderOrders()"><option value="all">All statuses</option><option value="pending">Pending</option><option value="completed">Completed</option><option value="rejected">Rejected</option></select></div>
+    <div id="orderList"></div>
+  </div>
+
+  <!-- 8. OTHER SITES -->
+  <div class="section" id="sec-sites">
+    <h2 style="margin-bottom:16px;color:var(--p)">Other Sites</h2>
+    <div class="card stk">
+      <label class="lbl">Site Name</label>
+      <input class="inp" id="siteName">
+      <label class="lbl">Site URL</label>
+      <input class="inp" id="siteUrl">
+      <button class="btn" style="margin-top:12px" onclick="addSite()">Add Site</button>
+    </div>
+    <div id="siteList"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="nav" aria-label="Admin navigation">
+    <button class="on" data-sec="dash" onclick="go('dash')"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2z"/></svg>Overview</button>
+    <button data-sec="settings" onclick="go('settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l.06.06a2 2 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
+    <button data-sec="cats" onclick="go('cats')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Content</button>
+    <button data-sec="products" onclick="go('products')"><svg viewBox="0 0 24 24"><path d="M4 5h16v15H4zM8 5V3h8v2M8 10h8M8 14h5"/></svg>Packages</button>
+    <button data-sec="requests" onclick="go('requests')"><svg viewBox="0 0 24 24"><path d="M3 6h18v13H3zM7 10h10M7 14h6"/></svg>Deposits</button>
+    <button data-sec="orders" onclick="go('orders')"><svg viewBox="0 0 24 24"><path d="M6 2h12l2 4v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><path d="M4 6h16M9 11h6"/></svg>Orders</button>
+    <button data-sec="users" onclick="go('users')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Users</button>
+    <button data-sec="sites" onclick="go('sites')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg>Sites</button>
+  </nav>
+</div>
+
+<!-- MODALS -->
+
+<!-- Theme Modal -->
+<div class="modal-mask" id="modalTheme">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" onclick="closeModal('modalTheme')">×</button>
+    <h3>Add/Edit Theme</h3>
+    <input type="hidden" id="thmId">
+    <label class="lbl">Theme Name</label>
+    <input class="inp" id="thmName" placeholder="e.g. Regular Topup">
+    <label class="lbl">Gradient Colors</label>
+    <div class="grid-2">
+      <input class="inp" type="color" id="thmC1" value="#6D28D9" style="height:40px">
+      <input class="inp" type="color" id="thmC2" value="#8B5CF6" style="height:40px">
+    </div>
+    <button class="btn" style="margin-top:16px" onclick="saveTheme()">Save Theme</button>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-mask" id="modalCat">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" onclick="closeModal('modalCat')">×</button>
+    <h3>Add/Edit Category</h3>
+    <input type="hidden" id="catId">
+    <label class="lbl">Category Name</label>
+    <input class="inp" id="catName" placeholder="e.g. Free Fire Diamond">
+    <label class="lbl">Image URL</label>
+    <input class="inp" id="catImg" placeholder="https://...">
+    <label class="lbl">Select Theme</label>
+    <select class="inp" id="catTheme"></select>
+    <label class="lbl">Account Info fields (JSON array)</label>
+    <textarea class="inp" id="catFieldsJson" rows="4" placeholder='[{"key":"playerId","label":"Player ID","type":"text","placeholder":"Enter UID","required":true}]'></textarea>
+    <label class="lbl">Player ID check</label>
+    <select class="inp" id="catUidCheck"><option value="true">Enabled (GamesKinbo verification)</option><option value="false">Disabled (custom account fields only)</option></select>
+    <p class="section-hint">Field keys become order data keys. Keep keys simple, e.g. playerId, whatsapp, telegram, facebookUrl.</p>
+    <button class="btn" style="margin-top:16px" onclick="saveCat()">Save Category</button>
+  </div>
+</div>
+
+<!-- Flash Category Modal -->
+<div class="modal-mask" id="modalFlashCat">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" onclick="closeModal('modalFlashCat')">×</button>
+    <h3>Add Flash Category</h3>
+    <input type="hidden" id="fcatId">
+    <label class="lbl">Name</label>
+    <input class="inp" id="fcatName">
+    <label class="lbl">Image URL</label>
+    <input class="inp" id="fcatImg">
+    <label class="lbl">Badge (e.g. 50% OFF)</label>
+    <input class="inp" id="fcatBadge">
+    <label class="lbl">End Time</label>
+    <input class="inp" type="datetime-local" id="fcatEnd">
+    <label class="lbl">Select Theme</label>
+    <select class="inp" id="fcatTheme"></select>
+    <button class="btn" style="margin-top:16px" onclick="saveFlashCat()">Save Flash Category</button>
+  </div>
+</div>
+
+<!-- Flash Product Modal -->
+<div class="modal-mask" id="modalFlashProd">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" onclick="closeModal('modalFlashProd')">×</button>
+    <h3>Add Flash Product</h3>
+    <label class="lbl">Select Category</label>
+    <select class="inp" id="fpCat"></select>
+    <label class="lbl">Package Name</label>
+    <input class="inp" id="fpName" placeholder="e.g. 100 Diamond">
+    <label class="lbl">Offer Price (৳)</label>
+    <input class="inp" type="number" id="fpPrice">
+    <label class="lbl">Old Price (৳)</label>
+    <input class="inp" type="number" id="fpOld">
+    <label class="lbl">End Time</label>
+    <input class="inp" type="datetime-local" id="fpEnd">
+    <button class="btn" style="margin-top:16px" onclick="saveFlashProd()">Save Flash Product</button>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-mask" id="modalProd">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" onclick="closeModal('modalProd')">×</button>
+    <h3>Add/Edit Package</h3>
+    <input type="hidden" id="prodId">
+    <label class="lbl">Package Name (Diamond)</label>
+    <input class="inp" id="prodName" placeholder="e.g. 100 Diamond">
+    <label class="lbl">Price (৳)</label>
+    <input class="inp" type="number" id="prodPrice">
+    <label class="lbl">Category</label>
+    <select class="inp" id="prodCat"></select>
+    <label class="lbl">Stock Status</label>
+    <select class="inp" id="prodStock">
+      <option value="true">In Stock</option>
+      <option value="false">Stock Out</option>
+    </select>
+    <button class="btn" style="margin-top:16px" onclick="saveProd()">Save Package</button>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="modal-mask" id="modalUser">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" onclick="closeModal('modalUser')">×</button>
+    <h3>User Details</h3>
+    <div id="userDetailContent"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Same-origin secured admin API ---------- */
+let DB={},SITES=[],adminPoll=null,adminEvents=null;
+const $=id=>document.getElementById(id);
+const tk=n=>"৳"+Number(n||0).toLocaleString("en-IN");
+const oldBrandPattern=new RegExp(["NEXT","BUILD"].join("")+"(?:\\s+HUB)?","gi");
+const brandText=s=>String(s??"").replace(oldBrandPattern,"LUNAR TOPUP");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const arr=o=>Array.isArray(o)?o.filter(Boolean):Object.values(o||{});
+async function apiRequest(url,options={}){const method=(options.method||'GET').toUpperCase(),headers={...(options.headers||{})};if(method!=='GET'&&method!=='HEAD'){headers['Content-Type']='application/json';headers['X-Lunar-Request']='1';}const r=await fetch(url,{...options,method,headers,credentials:'same-origin',cache:'no-store'});const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.message||j.error||'Request failed');e.data=j;e.status=r.status;throw e;}return j;}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2500);}
+function loading(on){$("loader").classList.toggle("on",on);}
+function openModal(id){$(id).classList.add("on");}
+function closeModal(id){$(id).classList.remove("on");}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const genId=(prefix)=>prefix+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+function toLocalInput(ms){const d=new Date(ms);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
+function snap(value,exists=true){return {val:()=>value,exists:()=>exists};}
+const db={ref:(rawPath)=>{
+  const path=String(rawPath||'').replace(/^nbh\/?/,'');
+  return {
+    set:async value=>apiRequest('/api/admin/db/set',{method:'POST',body:JSON.stringify({path,value})}),
+    update:async value=>apiRequest('/api/admin/db/update',{method:'POST',body:JSON.stringify({path,value})}),
+    remove:async()=>apiRequest('/api/admin/db/remove',{method:'POST',body:JSON.stringify({path})}),
+    once:async()=>{const r=await apiRequest('/api/admin/db?path='+encodeURIComponent(path));return snap(r.value,r.exists);},
+    get:async()=>{const r=await apiRequest('/api/admin/db?path='+encodeURIComponent(path));return snap(r.value,r.exists);}
+  };
+}};
+async function adminMutate(url,body){return apiRequest(url,{method:'POST',body:JSON.stringify(body)});}
+async function refreshAdmin(){const state=await apiRequest('/api/admin/state');DB=state||{};DB.settings=DB.settings||{};DB.users=DB.users||{};DB.orders=DB.orders||{};DB.deposits=DB.deposits||{};DB.codes=DB.codes||{};DB.themes=DB.themes||[];DB.categories=DB.categories||[];DB.flashCategories=DB.flashCategories||[];DB.products=DB.products||[];DB.flashOffers=DB.flashOffers||[];return DB;}
+async function login(){const username=$('adminUsername').value.trim(),password=$('adminPin').value;loading(true);try{await apiRequest('/api/admin/login',{method:'POST',body:JSON.stringify({username,password})});$('loginScreen').style.display='none';$('adminApp').style.display='block';await initAdmin();toast('Admin access granted');}catch(e){toast(e.data?.error==='ADMIN_PASSWORD_NOT_CONFIGURED'?'Render environment-এ ADMIN_PASSWORD set করুন':'Invalid admin username or password');}finally{loading(false);}}
+async function logout(){try{await apiRequest('/api/admin/logout',{method:'POST',body:'{}'});}catch(e){}if(adminPoll)clearInterval(adminPoll);location.reload();}
+function go(sec){document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));const target=$('sec-'+sec);if(!target)return;target.classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.sec===sec));history.pushState({adminSec:sec},'',location.pathname+'#'+sec);window.scrollTo(0,0);if(sec==='dash')renderDashboard();if(sec==='users')renderUsers('');if(sec==='requests')renderRequests();if(sec==='orders')renderOrders();if(sec==='products')renderProds();if(sec==='cats'){renderThemes();renderCats();renderFlashCats();renderFlashProds();}if(sec==='settings')loadSettings();if(sec==='sites')renderSites();}
+async function initAdmin(){
+  try{await refreshAdmin();$('loginScreen').style.display='none';$('adminApp').style.display='block';
+    const initial=$('adminApp').dataset.initialized==='true';$('adminApp').dataset.initialized='true';
+    if(!initial){const s=DB.settings||{};if(!s.popup)await db.ref('nbh/settings/popup').set({enabled:true,title:'LUNAR TOPUP',image:'',text:'LUNAR TOPUP-এ স্বাগতম।'});}
+    renderDashboard();const sec=location.hash.replace('#','');if(sec&&$('sec-'+sec))go(sec);
+    if(adminPoll)clearInterval(adminPoll);if(adminEvents)adminEvents.close();
+    const applyLive=state=>{DB=state||{};DB.settings=DB.settings||{};DB.users=DB.users||{};DB.orders=DB.orders||{};DB.deposits=DB.deposits||{};DB.codes=DB.codes||{};const sec=document.querySelector('.section.on')?.id.replace('sec-','');if(sec==='dash')renderDashboard();if(sec==='users')renderUsers($('userSearch')?.value||'');if(sec==='requests')renderRequests();if(sec==='orders')renderOrders();if(sec==='products')renderProds();if(sec==='cats'){renderThemes();renderCats();renderFlashCats();renderFlashProds();}if(sec==='sites')renderSites();};
+    if('EventSource' in window){adminEvents=new EventSource('/api/admin/events');adminEvents.onmessage=e=>{try{applyLive(JSON.parse(e.data));}catch(err){console.warn(err);}};adminEvents.onerror=()=>console.warn('Admin live stream reconnecting');}
+    else adminPoll=setInterval(async()=>{try{await refreshAdmin();applyLive(DB);}catch(e){console.warn('Admin refresh',e);}},3500);
+  }catch(e){$('adminApp').style.display='none';$('loginScreen').style.display='flex';if(e.status!==401)toast('Could not connect to Firebase server');}
+}
+
+/* =========================================================
+   RENDER: DASHBOARD
+   ========================================================= */
+function renderDashboard() {
+  const orders=arr(DB.orders),users=arr(DB.users),deposits=arr(DB.deposits);
+  const today=new Date().setHours(0,0,0,0);
+  const todayOrders=orders.filter(o=>(o.time||0)>=today);
+  const todaySales=todayOrders.filter(o=>o.status==="completed").reduce((sum,o)=>sum+(Number(o.price)||0),0);
+  const pendingOrders=orders.filter(o=>o.status==="pending").length;
+  const newUsers=users.filter(u=>(u.created||0)>=today).length;
+  const moneyReq=deposits.filter(d=>d.status==="pending").length;
+  const completed=orders.filter(o=>o.status==="completed").length;
+  const walletLiability=users.reduce((sum,u)=>sum+(Number(u.balance)||0),0);
+  $("dTotalOrders").textContent=orders.length;
+  $("dPendingOrders").textContent=pendingOrders;
+  $("dNewUsers").textContent=newUsers;
+  $("dMoneyReq").textContent=moneyReq;
+  $("dProfit").textContent=tk(todaySales);
+  $("dCompletedOrders").textContent=completed;
+  $("dTotalUsers").textContent=users.length;
+  $("dWalletLiability").textContent=tk(walletLiability);
+  const status=$('zrPayDashboardStatus');
+  if(status){status.textContent='Hosted checkout stays disabled until the ZR PAY create and verify request/response contract is confirmed and configured in Render. Save the Brand Key in Settings; a key alone does not activate payments.';}
+}
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+async function loadSettings() {
+  const s=DB.settings||{};
+  $('sLogo1').value=s.logo1||'';$('sLogo2').value=s.logo2||'';
+  $('sNoticeText').value=brandText(s.notice?.text||'');$('sNoticeColor').value=s.notice?.color||'#6D28D9';
+  $('sPopEnabled').value=String(s.popup?.enabled!==false);$('sPopTitle').value=brandText(s.popup?.title||'LUNAR TOPUP');$('sPopImg').value=s.popup?.image||'';$('sPopText').value=brandText(s.popup?.text||'');
+  $('sWaLink').value=s.support?.whatsapp||'';$('sTgLink').value=s.support?.telegram||'';$('sTgChannel').value=s.telegramChannel||'';
+  $('sMinAdd').value=s.minAddMoney||20;$('sTutorial').value=s.tutorial||'';$('sNameApi').value='/api/game/lookup';
+  $('sAppLink').value=s.appLink||'';$('sAiUrl').value=s.aiApi?.url||'https://api.openai.com/v1/chat/completions';$('sAiKey').value='';$('sAiModel').value=s.aiApi?.model||'gpt-4o-mini';
+  $('sGameskinboKey').value='';$('sZrPayBrandKey').value='';$('sZrPayMethods').value=arr(s.zrPayMethods||['bKash','Nagad','Rocket']).join(', ');
+  try{const status=await apiRequest('/api/admin/secret-status');DB._secretStatus=status;$('gameskinboKeyStatus').textContent='API key: '+(status.gameskinbo?'Configured (encrypted)':'Not configured');$('zrPayKeyStatus').textContent='Brand key: '+(status.zrpay?'Configured (encrypted)':'Not configured');$('aiKeyStatus').textContent='AI key: '+(status.ai?'Configured (encrypted/env)':'Not configured');}catch(e){}
+}
+async function saveSettings() {
+  const old=DB.settings||{},methods=$('sZrPayMethods').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const s={...old,logo1:$('sLogo1').value.trim(),logo2:$('sLogo2').value.trim(),
+    notice:{...(old.notice||{}),text:brandText($('sNoticeText').value.trim()),color:$('sNoticeColor').value},
+    popup:{...(old.popup||{}),enabled:$('sPopEnabled').value==='true',title:brandText($('sPopTitle').value.trim()||'LUNAR TOPUP'),image:$('sPopImg').value.trim(),text:brandText($('sPopText').value.trim())},
+    support:{...(old.support||{}),whatsapp:$('sWaLink').value.trim(),telegram:$('sTgLink').value.trim()},telegramChannel:$('sTgChannel').value.trim(),
+    minAddMoney:Math.max(1,Number($('sMinAdd').value)||20),tutorial:$('sTutorial').value.trim(),nameCheckApi:'/api/game/lookup',appLink:$('sAppLink').value.trim(),
+    aiApi:{enabled:!!old.aiApi?.enabled,url:$('sAiUrl').value.trim(),model:$('sAiModel').value.trim()||'gpt-4o-mini'},
+    zrPayMethods:methods,otherSites:old.otherSites||[]};
+  loading(true);
+  try{
+    await db.ref('nbh/settings').update(s);
+    const secrets={};if($('sGameskinboKey').value.trim())secrets.gameskinboApiKey=$('sGameskinboKey').value.trim();
+    if($('sZrPayBrandKey').value.trim())secrets.zrPayBrandKey=$('sZrPayBrandKey').value.trim();
+    if($('sAiKey').value.trim())secrets.aiApiKey=$('sAiKey').value.trim();
+    if(Object.keys(secrets).length)await apiRequest('/api/admin/secrets',{method:'POST',body:JSON.stringify(secrets)});
+    $('sGameskinboKey').value='';$('sZrPayBrandKey').value='';$('sAiKey').value='';await refreshAdmin();await loadSettings();toast('Settings saved securely');
+  }catch(e){console.error(e);toast(e.message||'Settings could not be saved');}finally{loading(false);}
+}
+function toggleSmsReader(el){el.checked=false;toast('ZR PAY server-side payment verification controls deposits. SMS auto-approval is not used for hosted checkout.');}
+
+/* =========================================================
+   CONTENT: THEMES
+   ========================================================= */
+function renderThemes() {
+  const themes = arr(DB.themes);
+  $("themeList").innerHTML = themes.length ? themes.map(t => `
+    <div class="list-item">
+      <div class="info">
+        <b style="background:${t.gradient};-webkit-background-clip:text;color:transparent">${esc(t.name)}</b>
+      </div>
+      <div class="actions">
+        <button class="btn-del" onclick="delTheme('${t.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<div class="empty-state">No themes added</div>`;
+}
+
+function saveTheme() {
+  const name = $("thmName").value.trim();
+  if (!name) return toast("Enter theme name");
+  const id = $("thmId").value || genId("TH");
+  const c1 = $("thmC1").value, c2 = $("thmC2").value;
+  const thm = { id, name, gradient: `linear-gradient(135deg, ${c1}, ${c2})` };
+  db.ref("nbh/themes/" + id).set(thm).then(() => { closeModal('modalTheme'); toast("Theme Saved"); $("thmName").value = ""; $("thmId").value = ""; });
+}
+function delTheme(id) { if (confirm("Delete theme?")) db.ref("nbh/themes/" + id).remove(); }
+
+/* =========================================================
+   CONTENT: CATEGORIES
+   ========================================================= */
+function renderCats() {
+  const cats = arr(DB.categories);
+  $("catList").innerHTML = cats.length ? cats.map(c => `
+    <div class="list-item">
+      <div class="info">
+        <b>${esc(c.name)}</b>
+        <span>Theme: ${esc(DB.themes?.[c.theme]?.name || c.theme)}</span>
+      </div>
+      <div class="actions">
+        <button class="btn-edit" onclick="editCat('${c.id}')">Edit</button><button class="btn-del" onclick="delCat('${c.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<div class="empty-state">No categories added</div>`;
+
+  // Populate selects
+  const themes = arr(DB.themes);
+  $("catTheme").innerHTML = themes.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
+  $("fcatTheme").innerHTML = themes.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
+}
+
+function editCat(id){const c=arr(DB.categories).find(x=>x.id===id);if(!c)return;$('catId').value=c.id;$('catName').value=c.name||'';$('catImg').value=c.image||'';$('catTheme').value=c.theme||'';$('catUidCheck').value=String(c.uidCheck!==false);$('catFieldsJson').value=JSON.stringify(c.accountFields||[],null,2);openModal('modalCat');}
+function saveCat() {
+  const name=$('catName').value.trim(),img=$('catImg').value.trim(),theme=$('catTheme').value;let fields=[];
+  try{fields=$('catFieldsJson').value.trim()?JSON.parse($('catFieldsJson').value):[];}catch(e){return toast('Account fields JSON is invalid');}
+  if(!Array.isArray(fields)||fields.length>12||fields.some(f=>!f.key||!/^[a-zA-Z][a-zA-Z0-9_]{1,30}$/.test(f.key)))return toast('Use a valid JSON array with simple field keys');
+  if(!name||!img)return toast('Enter name and image');const id=$('catId').value||genId('CT');const cat={id,name,image:img,theme,uidCheck:$('catUidCheck').value==='true',accountFields:fields};
+  db.ref('nbh/categories/'+id).set(cat).then(()=>{closeModal('modalCat');toast('Category Saved');$('catId').value='';$('catName').value='';$('catImg').value='';$('catFieldsJson').value='';refreshAdmin();}).catch(()=>toast('Could not save category'));
+}
+function delCat(id) { if (confirm("Delete category?")) db.ref("nbh/categories/" + id).remove(); }
+
+/* =========================================================
+   CONTENT: FLASH SALES
+   ========================================================= */
+function renderFlashCats() {
+  const fl = arr(DB.flashCategories);
+  $("flashList").innerHTML = fl.length ? fl.map(f => `
+    <div class="list-item">
+      <div class="info">
+        <b>${esc(f.name)} <span class="countdown">${f.badge}</span></b>
+        <span>Ends: ${new Date(f.end).toLocaleString()}</span>
+      </div>
+      <div class="actions">
+        <button class="btn-del" onclick="delFlashCat('${f.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<div class="empty-state">No flash categories</div>`;
+}
+
+function saveFlashCat() {
+  const name = $("fcatName").value.trim(), img = $("fcatImg").value.trim(), badge = $("fcatBadge").value.trim(), end = new Date($("fcatEnd").value).getTime(), theme = $("fcatTheme").value;
+  if (!name || !img || !end) return toast("Fill required fields");
+  const id = genId("FC");
+  const f = { id, name, image: img, badge, end, theme };
+  db.ref("nbh/flashCategories/" + id).set(f).then(() => { closeModal('modalFlashCat'); toast("Flash Category Saved"); });
+}
+function delFlashCat(id) { if (confirm("Delete flash category?")) db.ref("nbh/flashCategories/" + id).remove(); }
+
+function renderFlashProds() {
+  const fp = arr(DB.flashOffers);
+  $("flashProdList").innerHTML = fp.length ? fp.map(f => `
+    <div class="list-item">
+      <div class="info">
+        <b>${esc(f.name)} - ${tk(f.price)}</b>
+        <span>Cat: ${esc(DB.categories?.[f.cat]?.name || f.cat)}</span>
+      </div>
+      <div class="actions">
+        <button class="btn-warn" onclick="togglePackageStock('${f.id}','flashOffers')">${f.stock?'Stock Out':'Stock In'}</button>
+        <button class="btn-del" onclick="delFlashProd('${f.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<div class="empty-state">No flash products</div>`;
+
+  const cats = arr(DB.categories);
+  $("fpCat").innerHTML = cats.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+}
+
+function saveFlashProd() {
+  const cat = $("fpCat").value, name = $("fpName").value.trim(), price = Number($("fpPrice").value), old = Number($("fpOld").value), end = new Date($("fpEnd").value).getTime();
+  if (!name || !price || !end) return toast("Fill required fields");
+  const id = genId("FP");
+  const f = { id, cat, name, price, oldPrice: old || 0, end, stock: true };
+  db.ref("nbh/flashOffers/" + id).set(f).then(() => { closeModal('modalFlashProd'); toast("Flash Product Saved"); });
+}
+function delFlashProd(id) { if (confirm("Delete flash product?")) db.ref("nbh/flashOffers/" + id).remove(); }
+
+/* =========================================================
+   PRODUCTS
+   ========================================================= */
+function renderProds() {
+  const prods = arr(DB.products);
+  $("prodList").innerHTML = prods.length ? prods.map(p => `
+    <div class="list-item">
+      <div class="info">
+        <b>${esc(p.name)} - ${tk(p.price)}</b>
+        <span>Stock: ${p.stock ? "In" : "Out"} | Cat: ${esc(DB.categories?.[p.cat]?.name || p.cat)}</span>
+      </div>
+      <div class="actions">
+        <button class="btn-warn" onclick="togglePackageStock('${p.id}','products')">${p.stock?'Stock Out':'Stock In'}</button>
+        <button class="btn-edit" onclick="editProd('${p.id}')">Edit</button>
+        <button class="btn-del" onclick="delProd('${p.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<div class="empty-state">No products added</div>`;
+
+  const cats = arr(DB.categories);
+  $("prodCat").innerHTML = cats.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+}
+
+function editProd(id){const p=DB.products?.[id]||arr(DB.products).find(x=>x.id===id);if(!p)return;$("prodId").value=p.id;$("prodName").value=p.name||"";$("prodPrice").value=p.price||"";$("prodCat").value=p.cat||"";$("prodStock").value=String(!!p.stock);openModal("modalProd")}
+function saveProd() {
+  const name=$("prodName").value.trim(),price=Number($("prodPrice").value),cat=$("prodCat").value,stock=$("prodStock").value==="true";
+  if(!name||!Number.isFinite(price)||price<=0||!cat)return toast("Name, valid price and category are required");
+  const id=$("prodId").value||genId("PR"),p={id,name,price,cat,stock};
+  db.ref("nbh/products/"+id).set(p).then(()=>{closeModal("modalProd");toast("Package saved");$("prodName").value="";$("prodPrice").value="";$("prodId").value="";renderProds()}).catch(()=>toast("Could not save package"));
+}
+function togglePackageStock(id,collection){
+  const item=arr(DB[collection]).find(x=>x.id===id);if(!item)return;
+  db.ref(`nbh/${collection}/${id}`).update({stock:!item.stock}).then(async()=>{await refreshAdmin();renderProds();renderFlashProds();toast(item.stock?'Package marked Stock Out':'Package marked Stock In');}).catch(()=>toast('Could not update stock'));
+}
+function delProd(id) { if (confirm("Delete product?")) db.ref("nbh/products/" + id).remove(); }
+
+/* =========================================================
+   USERS
+   ========================================================= */
+function renderUsers(q="") {
+  const status=$("userStatusFilter")?.value||"all",query=String(q||"").toLowerCase().trim();
+  const users=arr(DB.users).filter(u=>{
+    const text=[u.name,u.email,u.id].map(v=>String(v||"").toLowerCase()).join(" ");
+    return (!query||text.includes(query))&&(status==="all"||(status==="banned"?!!u.banned:!u.banned));
+  }).sort((x,y)=>(Number(y.created)||0)-(Number(x.created)||0));
+  $("userList").innerHTML=users.length?users.map(u=>`
+    <div class="list-item">
+      <div class="info"><b>${esc(u.name||"Unnamed user")} ${u.banned?'<span class="badge rejected">BANNED</span>':'<span class="badge approved">ACTIVE</span>'}</b>
+        <span>${esc(u.email||"No email")} · ID: ${esc(u.id)} · Balance: ${tk(u.balance)}</span>
+        <span>${Number(u.orders)||0} orders · Joined ${u.created?new Date(u.created).toLocaleDateString():"unknown"}</span>
+      </div>
+      <div class="actions"><button class="btn-warn" onclick="showUser('${esc(u.id)}')">Details</button><button class="${u.banned?'btn-ok':'btn-del'}" onclick="toggleBan('${esc(u.id)}')">${u.banned?'Unban':'Ban'}</button></div>
+    </div>`).join(""):`<div class="empty-state">No users match this search.</div>`;
+}
+function showUser(id) {
+  const u=DB.users?.[id];if(!u)return;
+  const userOrders=arr(DB.orders).filter(o=>o.user===id),userDeposits=arr(DB.deposits).filter(d=>d.user===id);
+  const lastOrder=userOrders.sort((x,y)=>(y.time||0)-(x.time||0))[0];
+  $("userDetailContent").innerHTML=`
+    <div style="text-align:center;margin-bottom:14px"><div style="width:68px;height:68px;border-radius:22px;background:var(--grad);color:#fff;display:grid;place-items:center;margin:0 auto 9px;font-size:25px;font-weight:800">${esc((u.name||"U").slice(0,1).toUpperCase())}</div>
+      <h4>${esc(u.name||"Unnamed user")}</h4><p style="color:var(--mt);font-size:12px">${esc(u.id)}</p><span class="badge ${u.banned?'rejected':'approved'}">${u.banned?'BANNED':'ACTIVE'}</span></div>
+    <div class="user-detail-grid">
+      <div class="user-detail-tile"><small>Wallet balance</small><b>${tk(u.balance)}</b></div><div class="user-detail-tile"><small>Total spent</small><b>${tk(u.spent)}</b></div>
+      <div class="user-detail-tile"><small>Orders</small><b>${userOrders.length}</b></div><div class="user-detail-tile"><small>Deposit requests</small><b>${userDeposits.length}</b></div>
+    </div>
+    <div style="font-size:13px;display:grid;gap:9px;margin:14px 0">
+      <div><b>Email:</b> ${esc(u.email||"-")}</div><div><b>Support PIN:</b> ${esc(u.supportPin||"-")}</div>
+      <label class="lbl">Change user name</label><input class="inp" id="adminUserName" value="${esc(u.name||'')}">
+      <label class="lbl">Profile picture URL (HTTPS)</label><input class="inp" id="adminUserPic" value="${esc(u.pic||'')}">
+      <button class="btn" style="margin-top:8px" onclick="adminUpdateUserProfile('${esc(id)}')">Save User Profile</button>
+      <div><b>Joined:</b> ${u.created?new Date(u.created).toLocaleString():"-"}</div><div><b>Last order:</b> ${esc(lastOrder?.id||"-")}</div>
+      ${u.banned?`<div><b>Ban reason:</b> ${esc(u.banReason||"No reason recorded")}</div>`:""}
+    </div>
+    <hr style="border:0;border-top:1px solid #e9e2f5;margin:14px 0">
+    <h4 style="margin-bottom:6px">Wallet adjustment</h4><label class="lbl">Amount (+ add / − deduct)</label><input class="inp" id="userBalanceDelta" type="number" step="0.01" placeholder="e.g. 50 or -20">
+    <label class="lbl">Reason</label><input class="inp" id="userBalanceReason" placeholder="Refund / correction / adjustment">
+    <button class="btn" style="margin-top:12px" onclick="adjustUserBalance('${esc(id)}')">Apply Balance Change</button>
+    <button class="btn ${u.banned?'green':'red'}" style="margin-top:9px" onclick="toggleBan('${esc(id)}')">${u.banned?'Unban account':'Ban account'}</button>`;
+  openModal("modalUser");
+}
+async function toggleBan(id) {
+  const u=DB.users?.[id];if(!u)return;const action=u.banned?'unban':'ban';const reason=action==='ban'?(prompt('Ban reason?','Violation of store rules')||''):'';if(action==='ban'&&!reason)return;
+  try{await adminMutate('/api/admin/user-action',{action,userId:id,reason});await refreshAdmin();toast(action==='ban'?'User banned':'User unbanned');showUser(id);renderUsers($('userSearch')?.value||'');}catch(e){toast(e.message||'Could not update user');}
+}
+async function adjustUserBalance(id){
+  const delta=Number($('userBalanceDelta').value),reason=$('userBalanceReason').value.trim();if(!Number.isFinite(delta)||delta===0||Math.abs(delta)>100000)return toast('Enter a valid adjustment amount');if(reason.length<3)return toast('Please provide a reason');
+  try{await adminMutate('/api/admin/user-action',{action:'balance',userId:id,delta,reason});await refreshAdmin();toast('Wallet balance updated');showUser(id);}catch(e){toast(e.message||'Balance adjustment failed');}
+}
+async function adminUpdateUserProfile(id){const name=$('adminUserName').value.trim(),pic=$('adminUserPic').value.trim();try{await adminMutate('/api/admin/user-action',{action:'profile',userId:id,name,pic});await refreshAdmin();toast('User profile updated');showUser(id);}catch(e){toast(e.message||'Profile update failed');}}
+
+/* =========================================================
+   ADD MONEY REQUESTS
+   ========================================================= */
+function renderRequests() {
+  const query=String($("reqSearch")?.value||"").toLowerCase().trim(),status=$("reqStatusFilter")?.value||"all";
+  const reqs=arr(DB.deposits).filter(r=>{
+    const owner=DB.users?.[r.user]||{};const text=[r.trx,r.gateway,r.user,owner.name,owner.email].map(v=>String(v||"").toLowerCase()).join(" ");
+    return (!query||text.includes(query))&&(status==="all"||r.status===status);
+  }).sort((x,y)=>(y.time||0)-(x.time||0));
+  $("reqList").innerHTML=reqs.length?reqs.map(r=>`
+    <div class="list-item"><div class="info"><b>${esc(r.gateway||"Payment")} · ${tk(r.amount)} <span class="badge ${esc(r.status||"pending")}">${esc(r.status||"pending")}</span></b>
+      <span>TrxID: ${esc(r.trx||"-")} · User: ${esc(DB.users?.[r.user]?.name||r.user)}</span><span>Request: ${esc(r.id)} · ${r.time?new Date(r.time).toLocaleString():"-"}</span>
+    </div><div class="actions">${r.status==="pending"?`<button class="btn-ok" onclick="approveDep('${esc(r.id)}')">Approve</button><button class="btn-del" onclick="rejectDep('${esc(r.id)}')">Reject</button>`:""}</div></div>`).join(""):`<div class="empty-state">No deposit requests found.</div>`;
+}
+async function approveDep(id){loading(true);try{await adminMutate('/api/admin/deposit-action',{id,action:'approve'});await refreshAdmin();renderRequests();toast('Deposit processed');}catch(e){toast(e.message||'Deposit approval failed');}finally{loading(false);}}
+async function rejectDep(id){try{const reason=prompt('Rejection reason?','Payment not verified')||'';if(!reason)return;await adminMutate('/api/admin/deposit-action',{id,action:'reject',reason});await refreshAdmin();renderRequests();toast('Deposit rejected');}catch(e){toast(e.message||'Could not reject deposit');}}
+function renderOrders(){
+  const query=String($('orderSearch')?.value||'').toLowerCase().trim(),status=$('orderStatusFilter')?.value||'all';
+  const orders=arr(DB.orders).filter(o=>{const owner=DB.users?.[o.user]||{};const text=[o.id,o.type,o.uid,o.user,owner.name,owner.email].map(v=>String(v||'').toLowerCase()).join(' ');return (!query||text.includes(query))&&(status==='all'||o.status===status);}).sort((x,y)=>(y.time||0)-(x.time||0));
+  $('orderList').innerHTML=orders.length?orders.map(o=>`<div class="list-item"><div class="info"><b>${esc(o.type||'Topup')} · ${tk(o.price)} <span class="badge ${esc(o.status||'pending')}">${esc(o.status||'pending')}</span></b><span>User: ${esc(DB.users?.[o.user]?.name||o.user)} · UID: ${esc(o.uid||'-')}</span><span>Order: ${esc(o.id)} · ${o.time?new Date(o.time).toLocaleString():'-'}</span></div><div class="actions">${o.status==='pending'?`<button class="btn-ok" onclick="approveOrd('${esc(o.id)}')">Complete</button><button class="btn-del" onclick="rejectOrd('${esc(o.id)}')">Reject & Refund</button>`:''}</div></div>`).join(''):`<div class="empty-state">No orders match this filter.</div>`;
+}
+async function approveOrd(id){try{await adminMutate('/api/admin/order-action',{id,action:'complete'});await refreshAdmin();renderOrders();toast('Order marked completed');}catch(e){toast(e.message||'Could not complete order');}}
+async function rejectOrd(id){try{await adminMutate('/api/admin/order-action',{id,action:'reject'});await refreshAdmin();renderOrders();toast('Order rejected; refund processed once');}catch(e){toast(e.message||'Refund operation failed');}}
+/* =========================================================
+   OTHER SITES
+   ========================================================= */
+function renderSites() {
+  const sites = DB.settings?.otherSites || [];
+  $("siteList").innerHTML = sites.length ? sites.map((s, i) => `
+    <div class="list-item">
+      <div class="info"><b>${esc(s.name)}</b><span>${esc(s.url)}</span></div>
+      <div class="actions"><button class="btn-del" onclick="delSite(${i})">Delete</button></div>
+    </div>`).join("") : `<div class="empty-state">No other sites</div>`;
+}
+
+function addSite() {
+  const name = $("siteName").value.trim(), url = $("siteUrl").value.trim();
+  if (!name || !url) return toast("Fill all fields");
+  const sites = DB.settings?.otherSites || [];
+  sites.push({ name, url });
+  db.ref("nbh/settings/otherSites").set(sites).then(() => {
+    toast("Site Added");
+    $("siteName").value = ""; $("siteUrl").value = "";
+  });
+}
+function delSite(idx) {
+  const sites = DB.settings?.otherSites || [];
+  sites.splice(idx, 1);
+  db.ref("nbh/settings/otherSites").set(sites);
+}
+
+/* ---------- TABS ---------- */
+function catTab(t,button) {
+  $("cat-theme").style.display=t==="theme"?"block":"none";
+  $("cat-cat").style.display=t==="cat"?"block":"none";
+  $("cat-flash").style.display=t==="flash"?"block":"none";
+  document.querySelectorAll(".sub-tabs button").forEach(b=>b.classList.remove("on"));
+  if(button)button.classList.add("on");
+}
+
+/* ---------- Boot ---------- */
+(async()=>{
+  try{await refreshAdmin();$('loginScreen').style.display='none';$('adminApp').style.display='block';await initAdmin();}
+  catch(e){$('loginScreen').style.display='flex';$('adminApp').style.display='none';}
+})();
+window.addEventListener('popstate',()=>{const sec=location.hash.replace('#','');if(sec&&$('sec-'+sec)){document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));$('sec-'+sec).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.sec===sec));}});
+</script>
+</body>
+</html>

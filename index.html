@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>LUNAR TOPUP - Free Fire Topup</title>
+<meta name="description" content="LUNAR TOPUP - Free Fire diamond topup and wallet services">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#6D28D9; /* Purple */
+  --p2:#8B5CF6; /* Darker Purple/Pink */
+  --pd:#4C1D95;
+  --bg:#F4F7FD;
+  --card:#fff;
+  --tx:#0F1A2E;
+  --mt:#6B7894;
+  --stk:#0F1A2E;
+  --r:18px;
+  --ok:#16A34A;
+  --bad:#E11D48;
+  --warn:#F59E0B;
+  --grad:linear-gradient(135deg, #5B21B6, #8B5CF6);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tx)}
+body{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:90px;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select,textarea{font-family:inherit}
+svg{display:block}
+
+/* stroke helper: round corner + bottom stroke */
+.stk{border-radius:var(--r);border:1.5px solid #E3E9F5;border-bottom:4px solid var(--stk);background:var(--card)}
+.btn{background:var(--p);color:#fff;border-radius:14px;padding:13px 18px;font-weight:700;font-size:15px;border-bottom:4px solid var(--pd);
+  transition:transform .15s, box-shadow .2s, filter .2s;box-shadow:0 8px 20px -8px rgba(123,47,247,.7);width:100%;position:relative;overflow:hidden}
+.btn:active{transform:translateY(2px);border-bottom-width:2px}
+.btn:hover{filter:brightness(1.06)}
+.btn::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:shine 3s infinite}
+@keyframes shine{0%{left:-60%}60%,100%{left:130%}}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p);border-bottom:4px solid var(--pd);box-shadow:none}
+.btn.red{background:#E11D48;border-bottom-color:#9F1239;box-shadow:0 8px 20px -8px rgba(225,29,72,.6)}
+.btn:disabled{opacity:.55;pointer-events:none}
+.inp{width:100%;padding:13px 14px;border-radius:14px;border:1.5px solid #D9E2F2;border-bottom:3px solid var(--stk);font-size:15px;outline:none;background:#fff;transition:.2s}
+.inp:focus{border-color:var(--p);box-shadow:0 0 0 4px rgba(123,47,247,.15)}
+
+/* header (top bar) */
+.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(16px) saturate(1.6);-webkit-backdrop-filter:blur(16px) saturate(1.6);
+  border-bottom:1px solid rgba(15,26,46,.08);box-shadow:0 6px 20px -14px rgba(15,26,46,.4)}
+.top .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--p)}
+.top .logo img{height:34px;width:34px;border-radius:10px;object-fit:cover}
+.top .right{display:flex;align-items:center;gap:8px}
+.bal{display:flex;align-items:center;gap:6px;background:var(--grad);color:#fff;padding:7px 12px;border-radius:999px;font-weight:700;font-size:14px;border-bottom:3px solid var(--pd);animation:pulseb 3s infinite}
+@keyframes pulseb{0%,100%{box-shadow:0 0 0 0 rgba(123,47,247,.5)}50%{box-shadow:0 0 0 6px rgba(123,47,247,0)}}
+.ava{width:36px;height:36px;border-radius:50%;border:2px solid var(--p);display:grid;place-items:center;background:#EAF1FE;color:var(--p);overflow:hidden}
+.ava img{width:100%;height:100%;object-fit:cover}
+
+.page{display:none;padding:14px;animation:fadeUp .35s ease}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Slider */
+.slider{position:relative;overflow:hidden;border-radius:16px;border:2.5px solid #21152e;box-shadow:0 8px 20px -8px #0005;aspect-ratio:2/1;background:#dde6f7}
+.slides{display:flex;height:100%;transition:transform .6s cubic-bezier(.7,0,.3,1)}
+.slides a{min-width:100%;height:100%}
+.slides img{width:100%;height:100%;object-fit:cover}
+.dots{position:absolute;bottom:-18px;position:relative;margin:0 0 14px;display:flex;gap:5px;justify-content:center}
+.dots i{width:7px;height:7px;border-radius:9px;background:rgba(0,0,0,.2);transition:.3s}
+.dots i.on{width:20px;background:var(--p)}
+
+/* Notice board */
+.home-notice{margin:0 0 12px;display:flex;align-items:center;background:#fff;border:1px solid #e6e0f3;border-radius:12px;overflow:hidden;height:40px;box-shadow:0 4px 14px rgba(40,10,80,.08);color:#302344}
+.home-notice>b{height:100%;display:flex;align-items:center;padding:0 12px;background:var(--grad);color:#fff;font-size:11px;letter-spacing:.5px}
+.home-notice .marq{flex:1;overflow:hidden;white-space:nowrap;font-size:12px}
+.home-notice .marq span{display:inline-block;padding-left:100%;animation:marq 16s linear infinite}
+.home-notice button{height:100%;padding:0 12px;color:#6b6580;background:none;font-size:20px}
+@keyframes marq{to{transform:translateX(-100%)}}
+
+/* Home Support */
+.home-support{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 4px}
+.home-support a{background:var(--grad);color:#fff;border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:9px;box-shadow:0 8px 18px -6px rgba(123,47,247,.5)}
+.home-support a>span{grid-row:span 2;width:36px;height:36px;border-radius:50%;background:#ffffff33;display:grid;place-items:center;font-size:18px}
+.home-support small{font-size:9px;letter-spacing:.8px;opacity:.85}
+.home-support b{font-size:14px}
+
+/* Home Section */
+.home-section{margin-top:23px}
+.home-section>h3{font-size:15px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:9px;color:var(--p)}
+.home-section>h3:before{content:'';width:4px;height:21px;border-radius:4px;background:var(--grad)}
+.home-section>h3:after{content:'';height:2px;flex:1;background:linear-gradient(90deg,#e6e0f3,transparent)}
+
+.home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.home-card{background:#fff;border:1.8px solid #21152e;border-radius:14px;overflow:hidden;box-shadow:0 6px 0 -1px rgba(123,47,247,.3),0 10px 22px -8px rgba(123,47,247,.4);cursor:pointer;transition:transform .2s}
+.home-card:active{transform:scale(0.98)}
+.home-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#eee}
+.home-card .home-lbl{padding:7px 4px;text-align:center;font-size:11px;font-weight:700;min-height:39px;display:flex;align-items:center;justify-content:center;border-top:1.5px solid #21152e;line-height:1.2}
+
+.home-sub-logo{aspect-ratio:1;background:linear-gradient(160deg,#3b0f6e,#14062a);display:grid;place-items:center;color:#fbbf24;font-size:21px;font-weight:800}
+.home-sub-logo img{width:100%;height:100%;object-fit:contain;padding:10px;background:#fff}
+
+/* Real-time Orders (Source Design) */
+.home-orders{margin-top:24px;background:#ffffffd9;border:1px solid #fff;border-radius:18px;padding:14px;box-shadow:0 10px 30px -10px rgba(80,30,150,.15)}
+.home-order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.home-order-head b {display: flex; align-items: center; gap: 5px; font-size: 18px;}
+.home-order-head i{font-size:10px;color:#16a34a;font-style:normal}
+.home-order-head button{background:var(--grad);color:#fff;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;font-size:16px}
+.home-orow{display:flex;align-items:center;gap:9px;padding:12px 0;border-top:1px solid #e6e0f3;font-size:12px}
+.home-orow .av{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--grad);color:white;font-weight:700;overflow:hidden}
+.home-orow .av img {width:100%; height:100%; object-fit:cover;}
+.home-orow .oinfo{flex:1;min-width:0}
+.home-orow .oinfo b,.home-orow .oinfo span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-orow .oinfo b {font-size: 14px;}
+.home-orow .oinfo span{font-size:11px;color:#6b6580;margin-top:2px}
+.home-orow .status {font-size: 11px; background: #DCFCE7; color: #15803D; padding: 4px 10px; border-radius: 99px; font-weight: 700; display: flex; align-items: center; gap: 4px;}
+.home-orow .status.is-pending{background:#FEF3C7;color:#B45309}.home-orow .status.is-rejected{background:#FFE4E6;color:#BE123C}
+
+/* Footer */
+.home-app{margin-top:22px;background:linear-gradient(160deg,#3b0f6e,#14062a);border:1.8px solid #21152e;border-radius:18px;padding:20px;color:#fff;text-align:center}
+.home-app p{font-size:12px;opacity:.8;margin:5px 0 13px}
+.home-app a{display:inline-block;background:#111;border:1px solid #666;border-radius:10px;padding:8px 16px;font-weight:700;font-size:13px}
+
+/* end footer */
+.endf{margin:28px -14px -14px;padding:22px 16px 18px;background:#fff;border-top:1px solid #E3E9F5;text-align:center}
+.tg{display:flex;align-items:center;gap:12px;padding:12px;text-align:left;margin-bottom:14px}
+.tg .tgi{width:44px;height:44px;border-radius:50%;background:#229ED9;display:grid;place-items:center;flex:none}
+.tg b{display:flex;align-items:center;gap:4px}
+.tg small{color:var(--mt)}
+.endf .links{display:flex;gap:14px;justify-content:center;font-size:13px;color:var(--p);font-weight:600;margin-bottom:10px}
+.copy{font-size:12.5px;color:var(--mt);font-weight:600}
+
+/* Bottom nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:60;display:flex;justify-content:space-around;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid #E3E9F5;padding:8px 4px 10px;border-radius:22px 22px 0 0;box-shadow:0 -8px 24px -16px rgba(15,26,46,.4)}
+.nav button{background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--mt);padding:4px 8px;border-radius:12px;transition:.25s;position:relative}
+.nav button svg{transition:.25s;stroke:var(--mt)}
+.nav button.on{color:var(--p)}
+.nav button.on svg{transform:translateY(-3px) scale(1.1);stroke:var(--p)}
+.nav button.on::before{content:"";position:absolute;top:-8px;width:26px;height:4px;border-radius:0 0 4px 4px;background:var(--p)}
+
+/* FAB */
+.fab{position:fixed;right:max(16px,calc(50% - 224px));bottom:92px;z-index:70;display:flex;flex-direction:column;align-items:center;gap:10px}
+.fab .main{width:56px;height:56px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;border-bottom:4px solid var(--pd);box-shadow:0 10px 24px -8px rgba(123,47,247,.8);transition:transform .35s}
+.fab .main::before{content:"";position:absolute;width:56px;height:56px;border-radius:50%;border:2px solid var(--p);animation:ring 2s infinite}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.6);opacity:0}}
+.fab.open .main{transform:rotate(135deg)}
+.fab .sub{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;transform:scale(0) translateY(30px);opacity:0;transition:.35s cubic-bezier(.3,1.6,.5,1);box-shadow:0 8px 18px -8px rgba(0,0,0,.5)}
+.fab.open .sub{transform:none;opacity:1}
+.fab.open .sub:nth-child(2){transition-delay:.06s}
+.fab .wa{background:#25D366}.fab .tgb{background:#229ED9}
+.fab.hide{display:none}
+
+/* Modal */
+.mask{position:fixed;inset:0;background:rgba(15,26,46,.55);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.mask.on{display:flex;animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.modal{background:#fff;width:100%;max-width:400px;border-radius:22px;border:2px solid var(--stk);border-bottom-width:6px;padding:18px;position:relative;animation:pop .35s cubic-bezier(.3,1.5,.5,1);max-height:88vh;overflow:auto}
+@keyframes pop{from{transform:scale(.8);opacity:0}}
+.modal .x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#F1F4FA;display:grid;place-items:center;z-index:2}
+.modal h3{font-size:19px;margin-bottom:12px}
+.pimg{width:100%;border-radius:16px;border:2px solid var(--stk);margin-bottom:12px}
+
+
+/* LUNAR TOPUP premium welcome popup */
+body.modal-open{overflow:hidden}
+.notice-modal{max-width:430px;padding:0;border:1px solid rgba(109,40,217,.16);border-bottom:6px solid var(--pd);border-radius:26px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#fbfaff 100%);box-shadow:0 28px 80px rgba(24,12,54,.28)}
+.notice-modal .popup-head{display:flex;align-items:center;gap:12px;padding:18px 20px 8px}
+.popup-brand-icon{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;background:var(--grad);color:#fff;box-shadow:0 8px 18px rgba(109,40,217,.25);font-size:20px;font-weight:900}
+.popup-brand-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+.popup-brand-copy b{font-size:15px;letter-spacing:.35px;color:#21133f}
+.popup-brand-copy small{font-size:10px;font-weight:800;letter-spacing:1.3px;color:#8b79a9}
+.notice-modal .x{top:14px;right:14px;width:36px;height:36px;background:#f2edfb;color:#39205f}
+.popup-image-wrap{margin:12px 18px 0;border:1.5px solid #e7def7;border-radius:20px;background:linear-gradient(135deg,#f4efff,#fff);overflow:hidden;display:grid;place-items:center;min-height:0}
+.popup-image-wrap img{display:block;width:100%;max-height:285px;object-fit:contain;margin:0;border:0;border-radius:0;background:transparent}
+.popup-copy{padding:17px 22px 21px}
+.popup-eyebrow{display:inline-flex;align-items:center;gap:6px;color:#6d28d9;background:#f1eaff;border:1px solid #e3d5ff;border-radius:999px;padding:5px 10px;font-size:10px;font-weight:800;letter-spacing:.7px;margin-bottom:8px}
+.popup-copy h3{font-size:21px;line-height:1.25;margin:0 40px 8px 0;color:#21133f}
+.popup-copy p{font-size:14px;line-height:1.65;color:#51436c;white-space:pre-wrap;overflow-wrap:anywhere}
+.popup-copy .btn{margin-top:16px;min-height:52px;border-radius:15px;background:var(--grad);border-bottom-color:var(--pd);box-shadow:0 12px 22px -12px rgba(109,40,217,.7)}
+@media(max-width:380px){.notice-modal .popup-image-wrap{margin:10px 12px 0}.notice-modal .popup-copy{padding:14px 16px 17px}.popup-image-wrap img{max-height:235px}}
+
+/* Loader (New Design) */
+.loader{position:fixed;inset:0;z-index:200;background:rgba(255,255,255,.85);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loader.on{display:flex}
+.spin{width:54px;height:54px;position:relative}
+.spin i{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:var(--p);animation:sp 1s linear infinite}
+.spin i:nth-child(2){inset:8px;border-top-color:#8B5CF6;animation-duration:.7s;animation-direction:reverse}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Splash Loading Animation (New) */
+.splash{position:fixed;inset:0;z-index:300;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s}
+.splash.out{opacity:0;pointer-events:none}
+.splash-logo {width: 100px; height: 100px; animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);}
+@keyframes bounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* Toast */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--tx);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:400;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%)}
+
+/* Product page */
+.phead{display:flex;align-items:center;gap:12px;padding:12px}
+.phead img{width:62px;height:62px;border-radius:16px;object-fit:cover;border:2px solid var(--stk)}
+.phead h2{font-size:18px}
+.fast{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:#16A34A;background:#E8F8EE;padding:2px 10px;border-radius:99px;margin-top:4px}
+.step{margin-top:16px;padding:14px}
+.sh{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;margin-bottom:12px}
+.circ{width:28px;height:28px;border-radius:50%;color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none;box-shadow:0 4px 10px -4px currentColor;background:var(--p)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pk{padding:12px 10px;border-radius:14px;border:1.5px solid #D9E2F2;border-bottom:4px solid var(--stk);background:#fff;text-align:left;transition:.2s;position:relative;cursor:pointer}
+.pk .nm{font-weight:700;font-size:14px;display:flex;align-items:center;gap:5px}
+.pk .pr{color:var(--p);font-weight:700;margin-top:3px}
+.pk .old{color:var(--mt);text-decoration:line-through;font-size:12px;margin-left:4px}
+.pk.sel{border-color:var(--p);background:#F8F4FE;box-shadow:0 0 0 3px rgba(123,47,247,.2)}
+.pk.sel::after{content:"";position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--p) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/12px no-repeat}
+.pk.out{opacity:.55;cursor:not-allowed;filter:grayscale(.6)}
+.pk .so{position:absolute;top:-8px;right:8px;background:#E11D48;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.pk .fl{position:absolute;top:-8px;left:8px;background:#F59E0B;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.pay{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;border:1.5px solid #D9E2F2;border-bottom:4px solid var(--stk);background:#fff;cursor:pointer;transition:.2s;font-weight:700}
+.pay small{display:block;font-weight:500;color:var(--mt);font-size:12px}
+.pay.sel{border-color:var(--p);background:#F8F4FE}
+.pay.sel svg {stroke: var(--p);}
+.namebox{margin-top:10px;padding:10px 12px;border-radius:12px;background:#E8F8EE;color:#16A34A;font-weight:700;display:none;align-items:center;gap:6px}
+
+/* Lists */
+.empty{text-align:center;padding:40px 20px}
+.empty .ei{width:90px;height:90px;border-radius:50%;background:#EAF1FE;display:grid;place-items:center;margin:0 auto 14px;color:var(--p)}
+.empty h4{font-size:17px;margin-bottom:6px}
+.empty p{color:var(--mt);margin-bottom:16px;font-size:14px}
+.ord{padding:12px 14px;margin-bottom:10px}
+.ord .r{display:flex;justify-content:space-between;font-size:13.5px;padding:3px 0}
+.ord .r span:first-child{color:var(--mt)}
+.st{font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:99px}
+.st.pending{background:#FEF3C7;color:#B45309}.st.approved,.st.completed{background:#DCFCE7;color:#15803D}.st.rejected{background:#FFE4E6;color:#BE123C}
+.code{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;margin-bottom:10px}
+.code b{font-family:monospace;font-size:15px;letter-spacing:1px}
+.cpy{background:#EAF1FE;color:var(--p);border-radius:10px;padding:7px 12px;font-weight:700;font-size:13px}
+
+/* Add money */
+.title{font-size:20px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.lbl{font-size:14px;font-weight:600;margin:12px 0 6px;display:block}
+.hint{font-size:12.5px;color:var(--mt);margin-top:6px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chips button{background:#EAF1FE;color:var(--p);padding:6px 14px;border-radius:99px;font-weight:700;font-size:13px;border:1px solid #CFDDFB}
+.video{margin-top:18px;border-radius:18px;overflow:hidden;border:2px solid var(--stk);border-bottom-width:5px;aspect-ratio:16/9;background:#000}
+.video iframe{width:100%;height:100%;border:0}
+.gws{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gw{padding:12px 6px;border-radius:14px;border:1.5px solid #D9E2F2;border-bottom:4px solid var(--stk);background:#fff;text-align:center;font-weight:700;transition:.25s;cursor:pointer}
+.gw .gl{width:40px;height:40px;border-radius:12px;margin:0 auto 6px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:18px}
+.gw.sel{color:#fff;transform:translateY(-2px)}
+.paybox{margin-top:14px;padding:14px;border-radius:18px;color:#fff;border-bottom:5px solid var(--stk);transition:background .4s}
+.paybox .num{font-size:22px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between}
+.paybox .num button{background:rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:6px 12px;font-weight:700}
+.rules{margin-top:14px;padding:14px}
+.rules li{margin-left:20px;padding:4px 0;font-size:14px}
+.succ{text-align:center}
+.succ .ck{width:86px;height:86px;border-radius:50%;background:#16A34A;margin:6px auto 14px;display:grid;place-items:center;animation:pop .5s cubic-bezier(.3,1.8,.5,1);box-shadow:0 0 0 10px #DCFCE7}
+.succ .ck path{stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s .3s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* Account */
+.prof{padding:18px;text-align:center;background:var(--grad);color:#fff;border-radius:22px;border-bottom:5px solid var(--pd);position:relative;overflow:hidden}
+.prof::before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.12);top:-80px;right:-60px}
+.prof .pic{width:84px;height:84px;border-radius:50%;border:3px solid #fff;margin:0 auto 8px;overflow:hidden;background:#fff;color:var(--p);display:grid;place-items:center}
+.prof .pic img{width:100%;height:100%;object-fit:cover}
+.prof h3{display:flex;align-items:center;justify-content:center;gap:5px;font-size:19px}
+.prof small{opacity:.9}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stats div{padding:10px 6px;text-align:center}
+.stats b{display:block;font-size:17px;color:var(--p)}
+.stats span{font-size:12px;color:var(--mt)}
+.info{margin-top:14px;padding:6px 14px}
+.info .r{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #E3E9F5;font-size:14px}
+.info .r:last-child{border:0}
+.info .r span:first-child{color:var(--mt)}
+.menu{margin-top:14px;display:grid;gap:10px}
+.mi{display:flex;align-items:center;gap:12px;padding:13px 14px;font-weight:700;cursor:pointer;transition:.2s}
+.mi:active{transform:scale(.98)}
+.mi .mic{width:38px;height:38px;border-radius:12px;background:#EAF1FE;color:var(--p);display:grid;place-items:center}
+.mi .arr{margin-left:auto;color:var(--mt)}
+.soon{margin-left:auto;font-size:11px;background:#FEF3C7;color:#B45309;padding:2px 8px;border-radius:99px}
+.sites{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sites a{background:#fff;border:1.5px solid var(--p);border-bottom:3px solid var(--pd);color:var(--p);font-weight:700;padding:8px 14px;border-radius:12px;font-size:13px}
+.sec{font-weight:700;margin:18px 0 6px;color:var(--mt);font-size:13px;text-transform:uppercase;letter-spacing:.6px}
+
+/* Chat */
+.chat{display:flex;flex-direction:column;height:calc(100vh - 170px)}
+.msgs{flex:1;overflow:auto;padding:6px 0;display:flex;flex-direction:column;gap:8px}
+.m{max-width:80%;padding:10px 13px;border-radius:16px;font-size:14px;line-height:1.45;white-space:pre-wrap;animation:fadeUp .25s}
+.m.u{align-self:flex-end;background:var(--p);color:#fff;border-bottom-right-radius:4px}
+.m.b{align-self:flex-start;background:#fff;border:1px solid #E3E9F5;border-bottom-left-radius:4px}
+.cin{display:flex;gap:8px;padding-top:8px}
+.cin button{width:50px;flex:none;border-radius:14px;background:var(--p);color:#fff;display:grid;place-items:center;border-bottom:4px solid var(--pd)}
+.back{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--p);background:none;margin-bottom:10px;font-size:15px}
+.tabs{display:flex;background:#EAF1FE;border-radius:14px;padding:4px;margin-bottom:14px}
+.tabs button{flex:1;padding:9px;border-radius:10px;background:none;font-weight:700;color:var(--mt)}
+.tabs button.on{background:#fff;color:var(--p);box-shadow:0 3px 8px -4px rgba(0,0,0,.3)}
+.policy p,.policy li{font-size:13.5px;line-height:1.6;color:#334}
+.policy h4{margin:10px 0 4px}
+.policy ul{margin-left:18px}
+
+/* Hosted wallet checkout */
+.wallet-heading{padding:12px 4px 18px}.wallet-heading .eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:800;color:#8b5cf6}.wallet-heading h2{font-size:25px;line-height:1.25;margin:6px 0;color:#21133f}.wallet-heading h2 strong{color:#6d28d9}.wallet-heading p{font-size:13px;color:var(--mt);margin-top:7px}.wallet-card{padding:18px;background:linear-gradient(180deg,#fff,#fcfaff);border:1px solid #e6def6;border-bottom:4px solid #21133f;box-shadow:0 12px 28px -18px rgba(65,27,120,.35)}.wallet-card-head{display:flex;justify-content:space-between;align-items:center;color:var(--mt);font-size:13px}.wallet-card-head b{color:#6d28d9;font-size:20px}.amount-input-wrap{position:relative}.amount-input-wrap>span{position:absolute;z-index:2;left:14px;top:50%;transform:translateY(-50%);font-size:19px;color:#6d28d9;font-weight:800}.amount-input-wrap input{padding-left:38px;font-size:20px;font-weight:800;min-height:56px;background:#faf8ff}.gateway-preview{display:flex;gap:10px;align-items:center;margin-top:18px;padding:13px;border-radius:15px;background:#f3edff;border:1px solid #e4d7ff}.gateway-lock{width:31px;height:31px;display:grid;place-items:center;border-radius:10px;background:#6d28d9;color:#fff;font-weight:900;flex:none}.gateway-preview b,.gateway-preview small{display:block}.gateway-preview b{font-size:12px;color:#38205f}.gateway-preview small{font-size:11px;color:#786795;margin-top:3px;line-height:1.4}.wallet-pay-button{min-height:54px;display:flex;justify-content:space-between;padding:0 20px}.wallet-footnote{font-size:10.5px;color:#807493;text-align:center;line-height:1.5;margin-top:12px}
+
+.payment-method-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:13px}.payment-method{border:1.5px solid #e5ddf3;border-bottom:3px solid #d5c8ed;border-radius:13px;background:#fff;color:#31234b;padding:11px 5px;font-size:12px;font-weight:800;min-height:52px}.payment-method.selected{border-color:#6d28d9;background:#f4efff;color:#5b21b6;box-shadow:0 0 0 2px #6d28d91a}.payment-method:disabled{opacity:.5;cursor:not-allowed}
+.profile-edit-btn{margin-top:10px;padding:7px 14px;border:1px solid #ffffff85;border-radius:999px;background:#ffffff20;color:#fff;font-size:12px;font-weight:700}
+
+/* Premium authentication sheet */
+#mAuth .modal{max-width:420px;padding:26px 22px 22px;border:1px solid #e5dcf5;border-bottom:6px solid #4c1d95;border-radius:25px;background:linear-gradient(180deg,#fff,#fbf9ff);box-shadow:0 28px 75px rgba(29,13,58,.24)}
+#mAuth .tabs{background:#f1eaff;border:1px solid #e8def9;padding:5px;border-radius:14px}#mAuth .tabs button{padding:11px;border-radius:11px;font-weight:800}#mAuth .tabs button.on{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;box-shadow:0 7px 16px rgba(109,40,217,.2)}#mAuth .lbl{color:#5d4c77}#mAuth .inp{min-height:49px;border-color:#e2d9f2;border-bottom-color:#35234f;background:#fff}#mAuth #authBtn{min-height:51px;background:linear-gradient(135deg,#5b21b6,#8b5cf6);border-radius:15px}
+.profile-edit-btn{margin-top:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.55);color:#fff;border-radius:999px;padding:8px 18px;font-weight:800;font-size:12px;box-shadow:0 5px 14px rgba(32,10,70,.16)}
+.account-ban-page{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 20% 10%,#e9ddff,transparent 35%),linear-gradient(155deg,#1a1030,#30205a);font-family:'Hind Siliguri',sans-serif}.ban-card{width:100%;max-width:420px;border-radius:26px;background:#fff;padding:30px 24px;text-align:center;box-shadow:0 28px 90px rgba(10,4,24,.35);border-bottom:6px solid #4c1d95}.ban-mark{width:64px;height:64px;margin:0 auto 16px;border-radius:22px;display:grid;place-items:center;background:#fce7f3;color:#be185d;font-size:34px;font-weight:900}.ban-kicker{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#8b5cf6}.ban-card h1{font-size:25px;color:#21133f;margin:8px 0}.ban-card p{background:#fff1f2;border:1px solid #fecdd3;border-radius:12px;padding:12px;color:#9f1239;font-size:14px}.ban-card small{display:block;color:#6b6480;line-height:1.6;margin-top:14px}
+
+.profile-editor-modal{max-width:420px;padding:0;overflow:hidden;border-radius:24px;border:1px solid #e8def8;border-bottom:5px solid #4c1d95;background:linear-gradient(180deg,#fff,#fbf9ff)}
+.profile-editor-head{padding:20px 20px 14px;background:linear-gradient(135deg,#5b21b6,#8b5cf6);color:#fff}
+.profile-editor-head small{display:block;opacity:.78;font-size:10px;font-weight:800;letter-spacing:1.3px}
+.profile-editor-head h3{margin-top:4px;font-size:21px}
+.profile-editor-body{padding:18px 20px 20px}
+.profile-preview{width:92px;height:92px;border-radius:50%;margin:0 auto 12px;border:4px solid #fff;background:#f1eaff;box-shadow:0 0 0 2px #8b5cf6;overflow:hidden;display:grid;place-items:center;color:#6d28d9}
+.profile-preview img{width:100%;height:100%;object-fit:cover}
+.profile-upload{display:block;margin:0 auto 16px;width:max-content;background:#f2edff;color:#5b21b6;border:1px solid #e1d4fb;border-radius:999px;padding:8px 15px;font-size:12px;font-weight:800}
+.profile-editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- New Splash Loading Animation -->
+<div class="splash" id="splash">
+  <div class="splash-logo" id="splashLogo"></div>
+  <div class="spin"><i></i><i></i></div>
+</div>
+
+<!-- Top bar -->
+<header class="top">
+  <div class="logo" onclick="go('home')"><span id="logo1"></span><span>LUNAR TOPUP</span></div>
+  <div class="right">
+    <div class="bal" onclick="go('add')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h2M2 10h20"/></svg>
+      <span id="topBal">৳0</span>
+    </div>
+    <div class="ava" id="topAva" onclick="go('account')"></div>
+  </div>
+</header>
+
+<!-- HOME -->
+<section class="page on" id="p-home">
+  <div class="home-notice" id="noticeBoard">
+    <b>NOTICE</b><div class="marq"><span id="noticeText"></span></div>
+    <button aria-label="Close notice" onclick="document.getElementById('noticeBoard').style.display='none'">×</button>
+  </div>
+  
+  <div class="slider" id="slider"><div class="slides" id="slides"></div><div class="dots" id="dots"></div></div>
+  
+  <div class="home-support">
+    <a id="homeTelegram" target="_blank" rel="noopener"><span>✈</span><small>SUPPORT</small><b>Telegram</b></a>
+    <a id="homeGroup" target="_blank" rel="noopener"><span>👥</span><small>COMMUNITY</small><b>Join Group</b></a>
+  </div>
+  
+  <div class="home-section">
+    <h3>FLASH TOPUP EVENT</h3>
+    <div class="home-grid" id="homeEvents"></div>
+  </div>
+  
+  <div class="home-section">
+    <h3>REGULAR GAME TOPUP</h3>
+    <div id="themes"></div>
+  </div>
+  
+  <div class="home-section">
+    <h3>SUBSCRIPTION</h3>
+    <div class="home-grid" id="homeSubs"></div>
+  </div>
+
+  <!-- Real-time Orders from Admin -->
+  <div class="home-orders">
+    <div class="home-order-head">
+      <b><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2.5"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M7 8V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"/><circle cx="12" cy="14" r="2"/><path d="M12 16v2"/></svg> Recent Orders <i>● Live</i></b>
+      <button onclick="renderHomeOrders()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 1-9 9m-9-9a9 9 0 0 1 9-9m9 9H3m18 0a9 9 0 0 1-9 9"/></svg></button>
+    </div>
+    <div id="homeRecentOrders"></div>
+  </div>
+
+  <div class="home-app">
+    <b>DOWNLOAD OUR MOBILE APP</b><p>আরও দ্রুত ও সহজে টপ-আপ করুন</p>
+    <a id="homeApp" target="_blank" rel="noopener">▶ Google Play</a>
+  </div>
+  <div class="endf-slot"></div>
+</section>
+
+<!-- PRODUCT -->
+<section class="page" id="p-product">
+  <button class="back" onclick="go('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+  <div class="phead stk">
+    <img id="pImg" alt="">
+    <div><h2 id="pName"></h2><div class="fast"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg>২ সেকেন্ডে topup</div></div>
+  </div>
+  <div class="step stk">
+    <div class="sh"><span class="circ c1">1</span>Select Recharge</div>
+    <div class="grid2" id="pkgs"></div>
+  </div>
+  <div class="step stk">
+    <div class="sh"><span class="circ c2">2</span>Account Info</div>
+    <div id="accountFields"><label class="lbl" style="margin-top:0">প্লেয়ার আইডি বসান</label><input class="inp" id="uid" inputmode="numeric" autocomplete="off" placeholder="Player ID / UID" oninput="resetPlayerCheck()"></div>
+    <button class="btn ghost" id="checkBtn" style="margin-top:10px" onclick="checkName()">আপনার গেম আইডি নাম চেক করুন</button>
+    <div class="namebox" id="nameBox"></div>
+  </div>
+  <div class="step stk">
+    <div class="sh"><span class="circ c3">3</span>Select One Option</div>
+    <div class="grid2">
+      <div class="pay sel" data-pay="wallet" onclick="selPay(this)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h2M2 10h20"/></svg>
+        <div>Wallet Pay<small id="walletSmall">৳0</small></div>
+      </div>
+      <div class="pay" data-pay="instant" onclick="selPay(this)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#6D28D9"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg>
+        <div>Instant Pay<small>bKash/Nagad</small></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin:14px 2px 10px;font-weight:700"><span>Total</span><span id="total" style="color:var(--p)">৳0</span></div>
+    <button class="btn" onclick="topupNow()">Topup Now</button>
+  </div>
+  <div class="endf-slot"></div>
+</section>
+
+<!-- ORDERS -->
+<section class="page" id="p-order">
+  <div class="title"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2.4"><path d="M6 2h12l2 4v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><path d="M4 6h16M9 11h6M9 15h6"/></svg>My Orders</div>
+  <div class="tabs"><button class="on" onclick="ordTab(this,'order')">Topup Orders</button><button onclick="ordTab(this,'money')">Add Money</button></div>
+  <div id="orderList"></div>
+  <div class="endf-slot"></div>
+</section>
+
+<!-- ADD MONEY -->
+<section class="page" id="p-add">
+  <div id="addStep1">
+    <div class="wallet-heading"><span class="eyebrow">SECURE WALLET</span><h2>Add Money to<br><strong>lunartopup.com</strong></h2><p>আপনার LUNAR TOPUP wallet-এ ব্যালেন্স যোগ করুন</p></div>
+    <div class="wallet-card stk"><div class="wallet-card-head"><span>Available Balance</span><b id="addCurrentBalance">৳0</b></div>
+      <label class="lbl" style="margin-top:18px">Enter Amount (BDT)</label><div class="amount-input-wrap"><span>৳</span><input class="inp" id="amt" type="number" inputmode="numeric" min="1" placeholder="Enter amount"></div>
+      <div class="hint" id="minHint"></div><div class="chips" id="chips"></div>
+      <div class="gateway-preview"><span class="gateway-lock">✓</span><div><b>Secure checkout powered by ZR PAY BD</b><small id="gatewayMethods">Choose your payment method below.</small></div></div>
+      <div class="lbl" style="margin-top:14px">Select Payment Method</div><div class="payment-method-grid" id="paymentMethodGrid"></div>
+      <button class="btn wallet-pay-button" style="margin-top:18px" onclick="continuePay()">Add Money Securely <span>→</span></button>
+      <p class="wallet-footnote">Payment verification happens server-to-server. Your wallet is credited only after a verified successful payment.</p>
+    </div>
+    <div class="sec">How to add money</div><div class="video" id="video"></div>
+  </div>
+  <div id="addStep2" style="display:none"><div class="empty stk"><h4>Redirecting to secure checkout…</h4><p>ZR PAY BD payment page খুলছে। Page বন্ধ করবেন না।</p></div></div>
+</section>
+
+<!-- CODES -->
+<section class="page" id="p-code">
+  <div class="title"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2.4"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h2M7 13h6M15 13h2"/></svg>My Unipin Codes</div>
+  <div id="codeList"></div>
+  <div class="endf-slot"></div>
+</section>
+
+<!-- ACCOUNT -->
+<section class="page" id="p-account">
+  <div id="accBody"></div>
+  <div class="endf-slot"></div>
+</section>
+
+<!-- CHAT -->
+<section class="page" id="p-chat">
+  <button class="back" onclick="go('account')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M15 18l-6-6 6-6"/></svg>Lunar Topup (AI)</button>
+  <div class="chat">
+    <div class="msgs" id="msgs"></div>
+    <div class="cin"><input class="inp" id="chatIn" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+  </div>
+</section>
+
+<!-- FAB -->
+<div class="fab" id="fab">
+  <a class="sub wa" id="fabWa" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.1.6a2.7 2.7 0 001.8-1.2 2.2 2.2 0 00.1-1.2c0-.1-.2-.2-.4-.3z"/></svg></a>
+  <a class="sub tgb" id="fabTg" target="_blank" rel="noopener" aria-label="Telegram"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M21.9 4.6l-3.1 14.6c-.2 1-.8 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.8 13.1 2.1 11.6c-1-.3-1-1 .2-1.5L20.6 3c.9-.3 1.6.2 1.3 1.6z"/></svg></a>
+  <button class="main" onclick="document.getElementById('fab').classList.toggle('open')" aria-label="Support"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 14v-2a9 9 0 0118 0v2"/><rect x="2" y="14" width="5" height="7" rx="2"/><rect x="17" y="14" width="5" height="7" rx="2"/></svg></button>
+</div>
+
+<!-- Bottom nav -->
+<nav class="nav" id="nav">
+  <button data-p="home" class="on" onclick="go('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2z"/></svg>Home</button>
+  <button data-p="order" onclick="go('order')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2h12l2 4v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><path d="M4 6h16M9 11h6"/></svg>Order</button>
+  <button data-p="add" onclick="go('add')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7 12h10"/></svg>Add Money</button>
+  <button data-p="code" onclick="go('code')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h2M7 13h6"/></svg>Code</button>
+  <button data-p="account" onclick="go('account')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>My Account</button>
+</nav>
+
+<!-- Modals -->
+<div class="mask" id="mPopup"><div class="modal notice-modal" role="dialog" aria-modal="true" aria-labelledby="popTitle">
+  <button class="x" aria-label="Close notice" onclick="closeM('mPopup')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="popup-head"><div class="popup-brand-icon">L</div><div class="popup-brand-copy"><b>LUNAR TOPUP</b><small>OFFICIAL STORE NOTICE</small></div></div>
+  <div class="popup-image-wrap" id="popImageWrap"><img id="popImg" alt="LUNAR TOPUP notice artwork"></div>
+  <div class="popup-copy"><span class="popup-eyebrow">✦ WELCOME MESSAGE</span><h3 id="popTitle">LUNAR TOPUP</h3><p id="popText"></p><button class="btn" onclick="closeM('mPopup')">Continue to Store</button></div>
+</div></div>
+
+<div class="mask" id="mAuth"><div class="modal">
+  <button class="x" onclick="closeM('mAuth')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div style="text-align:center;margin-bottom:10px" id="authLogo"></div>
+  <div class="tabs"><button class="on" id="tLogin" onclick="authTab('login')">Login</button><button id="tSign" onclick="authTab('signup')">Sign Up</button></div>
+  <div id="fName" style="display:none"><label class="lbl">Full Name</label><input class="inp" id="aName" placeholder="Your name"></div>
+  <label class="lbl">Gmail</label><input class="inp" id="aEmail" type="email" placeholder="you@gmail.com">
+  <label class="lbl">Password</label><input class="inp" id="aPass" type="password" placeholder="Minimum 8 characters">
+  <button class="btn" style="margin-top:16px" id="authBtn" onclick="doAuth()">Login</button>
+  <p class="hint" style="text-align:center;margin-top:10px">অর্ডার বা অ্যাড মানি করতে লগইন প্রয়োজন</p>
+</div></div>
+
+<div class="mask" id="mSuccess"><div class="modal succ">
+  <div class="ck"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></div>
+  <h3 id="sTitle">Success</h3><p id="sText" style="color:var(--mt)"></p>
+  <button class="btn" style="margin-top:16px" onclick="closeM('mSuccess')">OK</button>
+</div></div>
+
+<div class="mask" id="mProfileEdit"><div class="modal profile-editor-modal">
+  <div class="profile-editor-head"><small>ACCOUNT PERSONALIZATION</small><h3>Edit your profile</h3><p style="font-size:12px;opacity:.86;margin-top:4px">আপনার নাম ও profile picture পরিবর্তন করুন</p></div>
+  <div class="profile-editor-body">
+    <div class="profile-preview" id="profilePreview"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+    <label class="profile-upload" for="profilePicFile">Choose profile picture</label><input id="profilePicFile" type="file" accept="image/*" style="display:none">
+    <label class="lbl" for="profileNameInput">Display name</label><input class="inp" id="profileNameInput" maxlength="50" placeholder="Your display name">
+    <p class="hint">JPG/PNG/WebP · ছবি 5 MB-এর মধ্যে হতে হবে। Upload-এর আগে ছোট করে নেওয়া হবে।</p>
+    <div class="profile-editor-actions"><button class="btn ghost" type="button" onclick="closeM('mProfileEdit')">Cancel</button><button class="btn" type="button" onclick="saveProfileEditor()">Save Changes</button></div>
+  </div>
+</div></div>
+
+<div class="mask" id="mPolicy"><div class="modal policy">
+  <button class="x" onclick="closeM('mPolicy')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <h3>Privacy Policy</h3>
+  <p>Last updated: November 2026. This Privacy Policy explains how LUNAR TOPUP ("we", "us") collects, uses and protects your information when you use our topup service.</p>
+  <h4>1. Information We Collect</h4>
+  <ul><li>Account details: name, email address and profile picture.</li><li>Game details: Player ID (UID) you enter for topups.</li><li>Payment details: amount, gateway and transaction ID. We never store your mobile banking PIN.</li></ul>
+  <h4>2. How We Use It</h4>
+  <ul><li>To process topup orders and wallet deposits.</li><li>To provide customer support and prevent fraud.</li><li>To send important service notices.</li></ul>
+  <h4>3. Data Sharing</h4>
+  <p>We do not sell your data. Information is shared only with payment and game service providers as required to complete your order, or when required by law.</p>
+  <h4>4. Security</h4>
+  <p>We use industry-standard measures to protect your data. No online service is 100% secure, so please keep your password private.</p>
+  <h4>5. Refunds</h4>
+  <p>Wrong Player IDs submitted by users are not refundable. Failed orders are refunded to your wallet.</p>
+  <h4>6. Your Rights</h4>
+  <p>You may request account deletion or data correction at any time through our support channels.</p>
+  <h4>7. Contact</h4>
+  <p>For questions, contact us via WhatsApp or Telegram from the support button.</p>
+</div></div>
+
+<div class="loader" id="loader"><div class="spin"><i></i><i></i></div><b style="color:var(--p)">Loading...</b></div>
+<div class="toast" id="toast"></div>
+
+<template id="endFooterTpl">
+  <footer class="endf">
+    <a class="tg stk" data-tg-channel target="_blank" rel="noopener">
+      <div class="tgi"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M21.9 4.6l-3.1 14.6c-.2 1-.8 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.8 13.1 2.1 11.6c-1-.3-1-1 .2-1.5L20.6 3c.9-.3 1.6.2 1.3 1.6z"/></svg></div>
+      <div style="flex:1"><b>Telegram Channel <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#6D28D9" d="M12 1l2.6 2.1 3.3-.3.9 3.2 2.9 1.6-1.2 3.1 1.2 3.1-2.9 1.6-.9 3.2-3.3-.3L12 23l-2.6-2.1-3.3.3-.9-3.2-2.9-1.6 1.2-3.1-1.2-3.1 2.9-1.6.9-3.2 3.3.3z"/><path d="M8 12l3 3 5-6" stroke="#fff" stroke-width="2.2" fill="none"/></svg></b><small>সকাল ৯ টা থেকে রাত ১০ টা পর্যন্ত</small></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2.6"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+    <div class="links"><a href="javascript:void(0)" onclick="openM('mPolicy')">Privacy Policy</a><a href="javascript:void(0)" onclick="openM('mPolicy')">Terms</a><a href="javascript:void(0)" onclick="openM('mPolicy')">Refund</a></div>
+    <div class="copy" data-cr>© 2026 LUNAR TOPUP. All rights reserved.</div>
+  </footer>
+</template>
+
+<script>
+/* ---------- Secure server API data layer ---------- */
+const LS_KEY="lunar_topup_cache_v1";
+let DB=null, SID=null, statePoll=null, stateEvents=null;
+async function apiRequest(url, options={}) {
+  const method=(options.method||"GET").toUpperCase();
+  const headers={...(options.headers||{})};
+  if(method!=="GET"&&method!=="HEAD") { headers["Content-Type"]="application/json"; headers["X-Lunar-Request"]="1"; }
+  const r=await fetch(url,{...options,method,headers,credentials:"same-origin",cache:"no-store"});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(data.message||data.error||"Request failed");e.status=r.status;e.data=data;throw e;}
+  return data;
+}
+function emptyDB(){return {settings:{},sliders:[],themes:[],categories:[],flashCategories:[],products:[],flashOffers:[],users:{},orders:{},deposits:{},codes:{},publicRecentOrders:[]};}
+function normalizeDB(data){const b=emptyDB(),s=data&&typeof data==="object"?data:{};return {...b,...s,settings:{...b.settings,...(s.settings||{})},users:s.users||{},orders:s.orders||{},deposits:s.deposits||{},codes:s.codes||{}};}
+async function refreshState(quiet=false){
+  try{const data=await apiRequest('/api/state');DB=normalizeDB(data);SID=DB.currentUserId||null;renderAll();return true;}
+  catch(e){if(e.status===403&&e.data?.banned){SID=null;localStorage.removeItem('lunar_topup_hint');showAccountBanPage(e.data.reason||'এই অ্যাকাউন্টটি Admin বন্ধ করেছেন।');return false;}
+    if(!quiet){console.error(e);toast('Server/Firebase সংযোগ পাওয়া যায়নি');}return false;}
+}
+function connectStateEvents(){
+  if(stateEvents){stateEvents.close();stateEvents=null;}
+  if(statePoll){clearInterval(statePoll);statePoll=null;}
+  if('EventSource' in window){
+    stateEvents=new EventSource('/api/events');
+    stateEvents.onmessage=e=>{try{const data=JSON.parse(e.data);if(data.banned){SID=null;DB.users={};localStorage.removeItem('lunar_topup_hint');showAccountBanPage(data.reason||'এই অ্যাকাউন্টটি Admin বন্ধ করেছেন।');return;}DB=normalizeDB(data);SID=DB.currentUserId||null;renderAll();}catch(err){console.warn('Live update parse failed',err);}};
+    stateEvents.onerror=()=>console.warn('Live updates reconnecting');
+  }else statePoll=setInterval(()=>refreshState(true),3500);
+}
+async function initDB(){await refreshState();connectStateEvents();}
+async function put(){throw new Error('Direct browser database writes are disabled.');}
+const arr = o => Array.isArray(o)?o.filter(Boolean):Object.values(o||{});
+
+/* ---------- Helpers ---------- */
+const $=id=>document.getElementById(id);
+const oldBrandPattern=new RegExp(["NEXT","BUILD"].join("")+"(?:\\s+HUB)?","gi");
+const brandText=s=>String(s??"").replace(oldBrandPattern,"LUNAR TOPUP");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tk=n=>"৳"+Number(n||0).toLocaleString("en-IN");
+const uidGen=(p)=>p+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2200)}
+function loading(on){$("loader").classList.toggle("on",on)}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function syncModalLock(){document.body.classList.toggle("modal-open",!!document.querySelector(".mask.on"))}
+function openM(id){$(id).classList.add("on");syncModalLock()}
+function closeM(id){$(id).classList.remove("on");syncModalLock()}
+function copyText(t){navigator.clipboard?.writeText(t);toast("Copied")}
+function fmtTime(ms){if(ms<=0)return"Ended";const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`}
+function dt(ms){const d=new Date(ms);return{date:d.toLocaleDateString("en-GB"),time:d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}}
+
+/* ---------- Account restriction screen ---------- */
+function showAccountBanPage(reason){
+  let layer=document.getElementById('accountBanPage');
+  if(!layer){layer=document.createElement('div');layer.id='accountBanPage';layer.className='account-ban-page';layer.innerHTML='<div class="ban-card"><div class="ban-mark">!</div><span class="ban-kicker">LUNAR TOPUP ACCOUNT SECURITY</span><h1>Account Restricted</h1><p class="ban-reason"></p><small>এই account দিয়ে আর login বা order করা যাবে না। ভুলবশত restriction হলে support team-এর সাথে যোগাযোগ করুন।</small></div>';document.body.appendChild(layer);}
+  layer.querySelector('.ban-reason').textContent=reason;layer.style.display='flex';
+}
+
+/* ---------- Session / authentication ---------- */
+const me=()=>SID&&DB?.users?.[SID]?DB.users[SID]:null;
+function needLogin(){if(!me()){authTab("login");openM("mAuth");toast("আগে লগইন করুন");return true;}if(me().banned){toast("Your account is banned");return true;}return false;}
+function authTab(t){
+  $("tLogin").classList.toggle("on",t==="login");$("tSign").classList.toggle("on",t==="signup");
+  $("fName").style.display=t==="signup"?"block":"none";$("authBtn").textContent=t==="login"?"Login":"Create Account";$("authBtn").dataset.m=t;
+  $("aPass").setAttribute('autocomplete',t==='login'?'current-password':'new-password');
+}
+async function doAuth(){
+  const m=$("authBtn").dataset.m||"login",email=$("aEmail").value.trim().toLowerCase(),password=$("aPass").value,name=$("aName").value.trim();
+  if(!/^\S+@\S+\.\S+$/.test(email))return toast("সঠিক Gmail দিন");
+  if(password.length<8)return toast("পাসওয়ার্ড কমপক্ষে ৮ অক্ষর দিন");
+  if(m==='signup'&&name.length<2)return toast('আপনার নাম লিখুন');
+  loading(true);
+  try{await apiRequest('/api/auth/'+(m==='signup'?'signup':'login'),{method:'POST',body:JSON.stringify({email,password,name})});
+    await refreshState(true);connectStateEvents();loading(false);closeM('mAuth');toast('Welcome '+(me()?.name||''));
+  }catch(e){loading(false);if(e.data?.error==='ACCOUNT_BANNED'){showAccountBanPage(e.data.reason||'এই অ্যাকাউন্টটি Admin বন্ধ করেছেন।');return;}toast(e.data?.error==='EMAIL_EXISTS'?'এই Gmail দিয়ে অ্যাকাউন্ট আছে':e.data?.error==='INVALID_CREDENTIALS'?'ভুল Gmail বা পাসওয়ার্ড':e.message);}
+}
+async function logout(){try{await apiRequest('/api/auth/logout',{method:'POST',body:'{}'});}catch(e){}SID=null;DB=normalizeDB(DB);DB.users={};DB.orders={};DB.deposits={};DB.codes={};connectStateEvents();toast('Logged out');renderAll();go('home');}
+
+/* ---------- Navigation ---------- */
+let current="home",navStack=["home"],restoringHistory=false;
+function showPage(p){
+  current=p;document.querySelectorAll(".page").forEach(s=>s.classList.toggle("on",s.id==="p-"+p));
+  const navKey=p==="product"?"home":p==="chat"?"account":p;
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===navKey));
+  $("fab").classList.toggle("hide",p==="chat");$("fab").classList.remove("open");
+  if(p==="order")renderOrders();if(p==="code")renderCodes();if(p==="account")renderAccount();if(p==="add"&&!pendingInstant)addBack();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function go(p){
+  if(!$("p-"+p))return;if(p==="chat"&&!me()){needLogin();return;}if(p==="chat"&&!aiReady())return toast("AI support এখনো configure করা হয়নি");
+  if(p!==current){navStack.push(p);if(navStack.length>30)navStack.shift();if(!restoringHistory)history.pushState({lunarPage:p},"",location.pathname+location.search);}
+  showPage(p);
+}
+window.addEventListener('popstate',()=>{restoringHistory=true;if(navStack.length>1){navStack.pop();showPage(navStack[navStack.length-1]||'home');}else{showPage('home');history.pushState({lunarRoot:true},'',location.pathname+location.search);}restoringHistory=false;});
+history.replaceState({lunarRoot:true},'',location.pathname+location.search);
+
+/* ---------- Render: global ---------- */
+function logoHtml(src,s=34){return src?`<img src="${esc(src)}" style="width:${s}px;height:${s}px;border-radius:10px;object-fit:cover" alt="logo">`:LOGO_SVG(s)}
+function renderTop(){
+  const S=DB.settings;$("logo1").innerHTML=logoHtml(S.logo1);
+  const u=me();$("topBal").textContent=tk(u?u.balance:0);
+  $("topAva").innerHTML=u&&u.pic?`<img src="${esc(u.pic)}" alt="">`:USER_SVG;
+  $("fabWa").href=S.support?.whatsapp||"#";$("fabTg").href=S.support?.telegram||"#";
+  const cc=S.circleColors||[];document.querySelectorAll(".circ").forEach((c,i)=>c.style.background=cc[i%3]||"var(--p)");
+}
+function renderFooters(){
+  document.querySelectorAll(".endf-slot").forEach(sl=>{sl.innerHTML="";sl.appendChild($("endFooterTpl").content.cloneNode(true))});
+  document.querySelectorAll("[data-tg-channel]").forEach(a=>a.href=DB.settings.telegramChannel||"#");
+}
+
+/* ---------- Home Rendering ---------- */
+let slideI=0,slideT;
+function renderSlider(){
+  const sl=arr(DB.sliders);
+  if(!sl.length){$("slider").style.display="none";return}
+  $("slider").style.display="";
+  $("slides").innerHTML=sl.map(s=>`<a href="${esc(s.link||"#")}" ${s.link&&s.link!=="#"?'target="_blank" rel="noopener"':""}><img src="${esc(s.image)}" alt="slide" loading="lazy"></a>`).join("");
+  $("dots").innerHTML=sl.map((_,i)=>`<i class="${i===0?"on":""}"></i>`).join("");
+  slideI=0;clearInterval(slideT);
+  if(sl.length>1)slideT=setInterval(()=>{slideI=(slideI+1)%sl.length;$("slides").style.transform=`translateX(-${slideI*100}%)`;
+    [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===slideI))},2500);
+}
+function renderNotice(){const n=DB.settings.notice||{};$("noticeBoard").style.display="flex";$("noticeText").textContent=brandText(n.text||"Welcome to LUNAR TOPUP!");$("noticeBoard").querySelector("b").style.background=(String(n.color||"").toUpperCase()==="#E11D48"?"var(--grad)":(n.color||"var(--grad)"))}
+function catCard(c,flash){
+  return `<div class="home-card" onclick="openCat('${esc(c.id)}')">${flash&&c.badge?`<span class="badge" style="position:absolute;background:#8B5CF6;color:#fff;font-size:10px;padding:2px 7px;border-radius:99px;z-index:2;top:4px;left:4px">${esc(c.badge)}</span>`:""}
+    <img src="${esc(c.image)}" alt="${esc(c.name)}" loading="lazy"><div class="home-lbl">${esc(c.name)}</div>${flash?`<div style="text-align:center;font-size:10px;color:#8B5CF6;font-weight:700;padding-bottom:4px" data-end="${c.end}">${fmtTime(c.end-Date.now())}</div>`:""}</div>`;
+}
+function tick(){
+  document.querySelectorAll("[data-end]").forEach(e=>e.textContent=fmtTime(+e.dataset.end-Date.now()));
+}
+function renderThemes(){
+  const cats=arr(DB.categories),fl=arr(DB.flashCategories).filter(f=>f.end>Date.now());
+  $("themes").innerHTML=arr(DB.themes).map(t=>{const list=[...fl.filter(f=>f.theme===t.id).map(f=>catCard(f,true)),...cats.filter(c=>c.theme===t.id).map(c=>catCard(c))];return list.length?`<div class="theme" style="margin:14px 0 8px"><h3 style="font-size:16px;color:var(--p);font-weight:800;margin-bottom:10px;padding-left:10px;border-left:4px solid var(--p)">${esc(t.name)}</h3></div><div class="home-grid">${list.join("")}</div>`:""}).join("");
+  $("homeEvents").innerHTML=fl.length?fl.map(c=>`<div class="home-card" onclick="openCat('${esc(c.id)}')"><img src="${esc(c.image)}" alt=""><div class="home-lbl">${esc(c.name)}</div></div>`).join(""):`<div style="font-size:12px;color:#6b6580">কোনো চলমান ইভেন্ট নেই</div>`;
+  const subs=arr(DB.settings.subscriptions||DB.subscriptions);$("homeSubs").innerHTML=subs.length?subs.map(x=>`<div class="home-card"><div class="home-sub-logo">${x.logo?`<img src="${esc(x.logo)}" alt="">`:esc((x.name||"S").slice(0,1))}</div><div class="home-lbl">${esc(x.name||"Subscription")}</div></div>`).join(""):`<div style="font-size:12px;color:#6b6580">Subscription list নেই</div>`;
+}
+/* Real-time Orders from Admin */
+function renderHomeOrders(){
+  const os=arr(DB.publicRecentOrders).sort((a,b)=>(b.time||0)-(a.time||0)).slice(0,8);
+  $("homeRecentOrders").innerHTML=os.length?os.map(o=>`
+    <div class="home-orow">
+      <div class="av">${o.player?esc(o.player.slice(0,1).toUpperCase()):'U'}</div>
+      <div class="oinfo">
+        <b>${esc(o.player||"Customer")}</b>
+        <span>${esc(o.type||o.cat||"Topup")} · ${tk(o.price)}</span>
+      </div>
+      <div class="status ${o.status==="completed"?"is-done":o.status==="rejected"?"is-rejected":"is-pending"}">${o.status==="completed"?"✓ Completed":o.status==="rejected"?"Rejected":"Pending"}</div>
+    </div>
+  `).join(""):`<div style="font-size:12px;color:#6b6580;padding:8px 0">এখনো কোনো অর্ডার নেই</div>`;
+}
+function renderHomeLinks(){const sp=DB.settings.support||{};$("homeTelegram").href=sp.telegram||DB.settings.telegramChannel||"#";$("homeGroup").href=DB.settings.telegramChannel||sp.telegram||"#";$("homeApp").href=DB.settings.appLink||"#";}
+
+/* ---------- Product page ---------- */
+const DEFAULT_FF_API="/api/game/lookup";
+let curCat=null,selPk=null,payMode="wallet",checkedName="",checkedUid="",checkedProfile=null;
+function findCat(id){return arr(DB.categories).find(c=>c.id===id)||arr(DB.flashCategories).find(c=>c.id===id)}
+function renderAccountInputs(){
+  const defaults=[{key:'playerId',label:'প্লেয়ার আইডি বসান',placeholder:'Player ID / UID',type:'text',required:true}];
+  const fields=Array.isArray(curCat?.accountFields)&&curCat.accountFields.length?curCat.accountFields:defaults;
+  const container=$("accountFields");container.innerHTML=fields.map((f,i)=>`<label class="lbl" style="margin-top:${i?12:0}px">${esc(f.label||f.key)}</label><input class="inp account-dynamic" data-key="${esc(f.key)}" data-required="${f.required!==false}" type="${['text','number','url','email'].includes(f.type)?f.type:'text'}" placeholder="${esc(f.placeholder||f.label||f.key)}" autocomplete="off" oninput="resetPlayerCheck()">`).join('');
+  const hasCheck=curCat?.uidCheck!==false;$("checkBtn").style.display=hasCheck?'block':'none';
+}
+function collectAccountInfo(){const out={};document.querySelectorAll('#accountFields .account-dynamic').forEach(x=>out[x.dataset.key]=x.value.trim());return out;}
+function openCat(id){
+  curCat=findCat(id);if(!curCat)return;selPk=null;checkedName="";checkedUid="";checkedProfile=null;
+  $("pImg").src=curCat.image;$("pName").textContent=curCat.name;$("nameBox").style.display="none";
+  renderAccountInputs();renderPkgs();go("product");
+}
+function renderPkgs(){
+  const offers=arr(DB.flashOffers).filter(o=>o.cat===curCat.id&&o.end>Date.now()).map(o=>({...o,flash:true}));
+  const ps=[...offers,...arr(DB.products).filter(p=>p.cat===curCat.id)];
+  $("pkgs").innerHTML=ps.length?ps.map(p=>`<div class="pk ${p.stock?"":"out"} ${selPk&&selPk.id===p.id?"sel":""}" onclick="pickPk('${esc(p.id)}')">
+     ${p.stock?"":'<span class="so">Stock Out</span>'}${p.flash?`<span class="fl" data-end="${p.end}">${fmtTime(p.end-Date.now())}</span>`:""}
+     <div class="nm">${DIA}${esc(p.name)}</div><div class="pr">${tk(p.price)}${p.oldPrice?`<span class="old">${tk(p.oldPrice)}</span>`:""}</div></div>`).join("")
+    :`<p class="hint" style="grid-column:span 2;text-align:center">No package available</p>`;
+  $("total").textContent=tk(selPk?selPk.price:0);$("walletSmall").textContent="Balance "+tk(me()?.balance||0);
+  window._pkList=ps;
+}
+function pickPk(id){const p=window._pkList.find(x=>x.id===id);if(!p)return;if(!p.stock)return toast("এই প্যাকেজটি Stock Out");selPk=p;renderPkgs()}
+function selPay(el){document.querySelectorAll(".pay").forEach(p=>p.classList.remove("sel"));el.classList.add("sel");payMode=el.dataset.pay}
+function resetPlayerCheck(){checkedName="";checkedUid="";checkedProfile=null;$("nameBox").style.display="none";if($("checkBtn")){ $("checkBtn").disabled=false;$("checkBtn").textContent="আপনার গেম আইডি নাম চেক করুন";}}
+function extractPlayerProfile(payload){
+  const roots=[payload?.basicInfo,payload?.AccountInfo,payload?.accountInfo,payload?.data?.basicInfo,payload?.data?.AccountInfo,payload?.data,payload?.player,payload].filter(Boolean);
+  const pick=(...keys)=>{for(const root of roots){for(const key of keys){const value=root?.[key];if(value!==undefined&&value!==null&&String(value).trim()!=="")return value}}return null};
+  return {
+    name:pick("nickname","name","player_name","AccountName","accountName","playerName"),
+    region:pick("region","AccountRegion","accountRegion"),
+    level:pick("level","AccountLevel","accountLevel")
+  };
+}
+async function checkName(){
+  const acct=collectAccountInfo();const uid=String(acct.playerId||acct.uid||$("uid")?.value||"").trim();if(!/^\d{5,15}$/.test(uid))return toast("৫–১৫ সংখ্যার সঠিক Player UID দিন");
+  const btn=$("checkBtn");btn.disabled=true;btn.textContent="Checking Player ID…";checkedName="";checkedUid="";checkedProfile=null;$("nameBox").style.display="none";
+  try{const profile=await apiRequest('/api/game/lookup?uid='+encodeURIComponent(uid));
+    if(!profile.name)throw new Error('Player not found');checkedName=String(profile.name);checkedUid=uid;checkedProfile=profile;
+    const details=[profile.region?String(profile.region).toUpperCase():"",profile.level?"Level "+profile.level:""].filter(Boolean).join(" · ");
+    btn.textContent="Verified: "+checkedName;$("nameBox").style.display="flex";
+    $("nameBox").innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg><span><b>${esc(checkedName)}</b>${details?`<small style="display:block;font-weight:500;opacity:.82">${esc(details)}</small>`:""}</span>`;
+  }catch(error){console.warn(error);checkedName="";checkedUid="";checkedProfile=null;btn.textContent="আবার নাম চেক করুন";toast(error.data?.error==='GAMESKINBO_KEY_NOT_CONFIGURED'?'Admin Settings-এ GamesKinbo API key সেট করুন':'Player name পাওয়া যায়নি। UID বা API limit পরীক্ষা করুন');}
+  finally{btn.disabled=false;}
+}
+
+let pendingInstant=null;
+async function topupNow(){
+  if(!selPk)return toast("একটি প্যাকেজ সিলেক্ট করুন");if(needLogin())return;
+  const accountInfo=collectAccountInfo(),fields=Array.isArray(curCat.accountFields)&&curCat.accountFields.length?curCat.accountFields:[{key:'playerId',required:true}];
+  for(const f of fields)if(f.required!==false&&!String(accountInfo[f.key]||'').trim())return toast((f.label||f.key)+' লিখুন');
+  const uid=String(accountInfo.playerId||accountInfo.uid||accountInfo.whatsapp||accountInfo.telegram||'').trim();
+  if(curCat.uidCheck!==false){if(!/^\d{5,15}$/.test(uid))return toast('সঠিক Player UID দিন');if(checkedUid!==uid||!checkedName)return toast('Topup করার আগে Player ID verify করুন');}
+  if(payMode==='instant'||(Number(me()?.balance)||0)<Number(selPk.price)){
+    pendingInstant={productId:selPk.id,categoryId:curCat.id,accountInfo,uid,name:checkedName,cat:curCat.name};
+    sessionStorage.setItem('lunar_pending_topup',JSON.stringify(pendingInstant));go('add');$('amt').value=Math.max(0,Number(selPk.price)-(payMode==='wallet'?(Number(me()?.balance)||0):0))||Number(selPk.price);return;
+  }
+  await placeOrder(selPk,uid,checkedName,curCat.name,'wallet',accountInfo);
+}
+async function placeOrder(pk,uid,name,catName,via,accountInfo={}){
+  if(!me())return toast('আগে লগইন করুন');loading(true);
+  try{const result=await apiRequest('/api/orders',{method:'POST',body:JSON.stringify({productId:pk.id,categoryId:curCat?.id||pk.cat,uid,player:name,accountInfo,via})});
+    await refreshState(true);loading(false);$('sTitle').textContent='Order Placed';$('sText').textContent=`Order ID: ${result.order.id} · ${pk.name} · ${tk(pk.price)}`;openM('mSuccess');go('order');
+  }catch(e){loading(false);await refreshState(true);toast(e.data?.message||e.data?.error||'অর্ডার করা যায়নি। Balance ও stock চেক করুন');}
+}
+
+/* ---------- Orders (User) ---------- */
+let ordMode="order";
+function ordTab(b,m){document.querySelectorAll("#p-order .tabs button").forEach(x=>x.classList.remove("on"));b.classList.add("on");ordMode=m;renderOrders()}
+function emptyBox(icon,h,p,btn,fn){return `<div class="empty stk"><div class="ei">${icon}</div><h4>${h}</h4><p>${p}</p>${btn?`<button class="btn" onclick="${fn}">${btn}</button>`:""}</div>`}
+const BOX_IC=`<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>`;
+function renderOrders(){
+  const u=me();if(!u){$("orderList").innerHTML=emptyBox(USER_SVG.replace(/20/g,"40"),"লগইন করুন","আপনার অর্ডার দেখতে লগইন করুন","Login","authTab('login');openM('mAuth')");return}
+  if(ordMode==="order"){
+    const os=arr(DB.orders).filter(o=>o.user===u.id).sort((a,b)=>b.time-a.time);
+    $("orderList").innerHTML=os.length?os.map(o=>{const d=dt(o.time);return `<div class="ord stk">
+      <div class="r"><b>${esc(o.type)}</b><span class="st ${o.status}">${o.status}</span></div>
+      <div class="r"><span>UID</span><b>${esc(o.uid)}</b></div>
+      <div class="r"><span>Date</span><span>${d.date}</span></div>
+      <div class="r"><span>Time</span><span>${d.time}</span></div>
+      <div class="r"><span>Type</span><span>${esc(o.cat)} (${tk(o.price)})</span></div>
+      <div class="r"><span>Order ID</span><b style="font-family:monospace">${o.id}</b></div></div>`}).join("")
+      :emptyBox(BOX_IC,"কোনো অর্ডার নেই","এখনো কোনো অর্ডার করেননি, এখনই অর্ডার করুন","Order Now","go('home')");
+  }else{
+    const ds=arr(DB.deposits).filter(o=>o.user===u.id).sort((a,b)=>b.time-a.time);
+    $("orderList").innerHTML=ds.length?ds.map(o=>{const d=dt(o.time);return `<div class="ord stk">
+      <div class="r"><b>${tk(o.amount)} - ${esc(o.gateway)}</b><span class="st ${o.status}">${o.status}</span></div>
+      <div class="r"><span>Transaction ID</span><b>${esc(o.providerTransactionId||o.providerPaymentId||o.trx||"-")}</b></div><div class="r"><span>Deposit ID</span><b style="font-family:monospace">${esc(o.id)}</b></div><div class="r"><span>Date</span><span>${d.date} ${d.time}</span></div></div>`}).join("")
+      :emptyBox(BOX_IC,"কোনো রিকোয়েস্ট নেই","এখনো অ্যাড মানি করেননি","Add Money","go('add')");
+  }
+}
+
+/* ---------- Secure hosted add money ---------- */
+let payAmount=0,selectedGatewayMethod='';
+function renderAddMoney(){
+  const min=Number(DB.settings.minAddMoney||20);$('minHint').textContent=`Minimum ${tk(min)}`;$('addCurrentBalance').textContent=tk(me()?.balance||0);
+  const methods=arr(DB.settings.zrPayMethods||['bKash','Nagad','Rocket']).map(x=>String(x));if(!methods.includes(selectedGatewayMethod))selectedGatewayMethod=methods[0]||'';
+  $('gatewayMethods').textContent=methods.length?methods.join(' · ')+' · hosted secure checkout':'No payment methods configured';
+  $('paymentMethodGrid').innerHTML=methods.map(m=>`<button type="button" class="payment-method ${m===selectedGatewayMethod?'selected':''}" onclick="selectGatewayMethod(decodeURIComponent('${encodeURIComponent(m)}'))">${esc(m)}</button>`).join('')||'<small>Payment methods not configured. Contact support.</small>';
+  $('chips').innerHTML=[100,200,500,1000].filter(v=>v>=min).map(v=>`<button type="button" onclick="$('amt').value=${v}">${tk(v)}</button>`).join('');
+  const v=DB.settings.tutorial;$('video').innerHTML=v?`<iframe src="${esc(toEmbed(v))}" allowfullscreen loading="lazy"></iframe>`:`<p style="color:#fff;text-align:center;padding:30px">Tutorial coming soon</p>`;
+}
+function selectGatewayMethod(method){selectedGatewayMethod=method;renderAddMoney();}
+function toEmbed(u){const m=String(u||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?`https://www.youtube.com/embed/${m[1]}`:u}
+function addBack(){$('addStep1').style.display='block';$('addStep2').style.display='none';pendingInstant=null;sessionStorage.removeItem('lunar_pending_topup');}
+async function continuePay(fromTopup=false){
+  if(needLogin())return;const amount=Number($('amt').value),min=Number(DB.settings.minAddMoney||20);
+  if(!Number.isFinite(amount)||amount<min||amount>100000)return toast(`সঠিক amount দিন (Minimum ${tk(min)})`);
+  payAmount=amount;
+  if(!selectedGatewayMethod)return toast('Admin এখনো payment method configure করেননি');
+  loading(true);
+  try{
+    const result=await apiRequest('/api/payments/create',{method:'POST',body:JSON.stringify({amount,method:selectedGatewayMethod})});
+    $('addStep1').style.display='none';$('addStep2').style.display='block';
+    location.href=result.redirectUrl;
+  }catch(e){loading(false);$('addStep2').style.display='none';$('addStep1').style.display='block';toast(e.data?.message||e.data?.error||'Payment gateway এখন configure করা নেই');}
+}
+async function checkPaymentReturn(){
+  const orderId=new URLSearchParams(location.search).get('payment_order');if(!orderId)return;
+  if(!me())return;toast('Payment verification হচ্ছে…');
+  let result;try{result=await apiRequest('/api/payments/'+encodeURIComponent(orderId)+'/status');}catch(e){toast('Payment status এখন পাওয়া যাচ্ছে না');return;}
+  await refreshState(true);
+  if(result.status==='approved'){
+    const pendingRaw=sessionStorage.getItem('lunar_pending_topup');
+    if(pendingRaw){try{pendingInstant=JSON.parse(pendingRaw);sessionStorage.removeItem('lunar_pending_topup');const pending=pendingInstant;pendingInstant=null;const product=[...arr(DB.products),...arr(DB.flashOffers)].find(x=>x.id===pending.productId);if(product){curCat=findCat(pending.categoryId);await placeOrder(product,pending.uid,pending.name,curCat?.name||pending.cat,'wallet',pending.accountInfo||{});}}catch(e){console.warn(e)}}
+    $('sTitle').textContent='Payment Verified';$('sText').textContent='আপনার payment সফলভাবে verify হয়েছে এবং wallet balance update হয়েছে।';openM('mSuccess');
+  }else toast('Payment এখনো pending আছে। My Orders থেকে status দেখুন।');
+  history.replaceState({},'',location.pathname);
+}
+
+/* ---------- Codes ---------- */
+function renderCodes(){
+  const u=me();const cs=u?arr(DB.codes).filter(c=>c.user===u.id):[];
+  $("codeList").innerHTML=cs.length?cs.map(c=>`<div class="code stk"><div><small style="color:var(--mt)">${esc(c.name||"Unipin Voucher")}</small><br><b>${esc(c.code)}</b></div><button class="cpy" onclick="copyText('${esc(c.code)}')">Copy</button></div>`).join("")
+    :emptyBox(`<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h2M7 13h6M15 13h2"/></svg>`,"No Buy Unipin Voucher","আপনি এখনো কোনো Unipin Voucher কিনেননি","Go Topup","go('home')");
+}
+
+/* ---------- Account ---------- */
+function aiReady(){return !!DB.settings?.aiApi?.enabled}
+const IC={add:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7 12h10"/></svg>`,
+  ord:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2h12l2 4v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>`,
+  chat:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a8 8 0 01-11.8 7L3 21l2-6A8 8 0 1121 12z"/></svg>`,
+  out:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>`,
+  arr:`<svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg>`};
+function renderAccount(){
+  const u=me(),S=DB.settings;
+  if(!u){$("accBody").innerHTML=`<div class="empty stk"><div style="margin:0 auto 14px;width:80px">${logoHtml(S.logo2,80)}</div><h4>Welcome to LUNAR TOPUP</h4><p>একাউন্ট দেখতে লগইন বা সাইন আপ করুন</p>
+    <button class="btn" onclick="authTab('login');openM('mAuth')">Login</button><button class="btn ghost" style="margin-top:10px" onclick="authTab('signup');openM('mAuth')">Sign Up</button></div>`;return}
+  const os=arr(DB.orders).filter(o=>o.user===u.id);
+  $("accBody").innerHTML=`
+  <div class="prof"><div class="pic">${u.pic?`<img src="${esc(u.pic)}" alt="">`:USER_SVG.replace(/20/g,"40")}</div>
+    <h3>${esc(u.name)} ${u.verified?VERIFIED:""}</h3><small>ID: ${esc(u.id)}</small><button class="profile-edit-btn" type="button" onclick="openProfileEditor()">Edit Profile</button></div>
+  <div class="stats"><div class="stk"><b>${tk(u.spent)}</b><span>Total Spent</span></div><div class="stk"><b>${os.length}</b><span>Total Order</span></div><div class="stk"><b>${tk(u.balance)}</b><span>Available</span></div></div>
+  <div class="info stk">
+    <div class="r"><span>User Name</span><b>${esc(u.name)}</b></div>
+    <div class="r"><span>Account ID</span><b>${esc(u.id)}</b></div>
+    <div class="r"><span>Gmail</span><b>${esc(u.email)}</b></div>
+    <div class="r"><span>Last Order ID</span><b style="font-family:monospace">${esc(u.lastOrder||"-")}</b></div>
+    <div class="r"><span>Support PIN</span><b>${esc(u.supportPin||"-")}</b></div>
+  </div>
+  ${arr(S.otherSites).length?`<div class="sec">Other Site</div><div class="sites">${arr(S.otherSites).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>`).join("")}</div>`:""}
+  <div class="sec">App</div>
+  <div class="menu">
+    <div class="mi stk" onclick="go('chat')"><span class="mic">${IC.chat}</span>Lunar Topup (AI) ${IC.arr}</div>
+    <div class="mi stk" onclick="go('add')"><span class="mic">${IC.add}</span>Add Money ${IC.arr}</div>
+    <div class="mi stk" onclick="go('order')"><span class="mic">${IC.ord}</span>Order ${IC.arr}</div>
+    <div class="mi stk" onclick="logout()" style="color:#E11D48"><span class="mic" style="background:#FFE4E6;color:#E11D48">${IC.out}</span>Logout</div>
+  </div>`;
+}
+
+/* ---------- AI Chat ---------- */
+const chatHist=[];
+function addMsg(t,who){const d=document.createElement("div");d.className="m "+who;d.textContent=t;$("msgs").appendChild(d);$("msgs").scrollTop=1e9;return d}
+async function sendChat(){
+  const t=$('chatIn').value.trim();if(!t)return;$('chatIn').value='';addMsg(t,'u');chatHist.push({role:'user',content:t});
+  const b=addMsg('উত্তর তৈরি হচ্ছে…','b');
+  try{const result=await apiRequest('/api/chat',{method:'POST',body:JSON.stringify({messages:chatHist.slice(-10)})});const reply=result.reply||'দুঃখিত, এখন উত্তর দেওয়া যাচ্ছে না।';b.textContent=reply;chatHist.push({role:'assistant',content:reply});}
+  catch(e){b.textContent=e.data?.error==='AI_NOT_CONFIGURED'?'Admin Settings-এ AI provider API key configure করতে হবে।':'Connection error. Please try again.';}
+}
+
+/* ---------- Profile editor ---------- */
+let profileDraftPic='';
+async function openProfileEditor(){
+  const u=me();if(!u)return;
+  $('profileNameInput').value=u.name||'';profileDraftPic=u.pic||'';
+  $('profilePreview').innerHTML=profileDraftPic?`<img src="${esc(profileDraftPic)}" alt="Profile preview">`:'<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
+  $('profilePicFile').value='';openM('mProfileEdit');
+}
+$('profilePicFile').addEventListener('change',async e=>{
+  const file=e.target.files?.[0];if(!file)return;if(file.size>5*1024*1024){e.target.value='';return toast('ছবির size 5MB-এর কম হতে হবে');}
+  try{profileDraftPic=await compressProfileImage(file);if(profileDraftPic.length>180000){profileDraftPic='';e.target.value='';return toast('ছবিটি আরও ছোট বা crop করে আবার দিন');}$('profilePreview').innerHTML=`<img src="${profileDraftPic}" alt="Profile preview">`;}catch(err){toast('ছবিটি পড়া যায়নি');}
+});
+async function saveProfileEditor(){
+  const u=me(),name=$('profileNameInput').value.trim();if(!u)return closeM('mProfileEdit');
+  if(name.length<2)return toast('নাম কমপক্ষে ২ অক্ষর হতে হবে');
+  loading(true);try{await apiRequest('/api/profile',{method:'POST',body:JSON.stringify({name,pic:profileDraftPic})});await refreshState(true);closeM('mProfileEdit');toast('Profile updated successfully');}
+  catch(e){toast(e.data?.error==='IMAGE_INVALID_OR_TOO_LARGE'?'ছবিটি ছোট করে আবার দিন':e.message||'Profile update failed');}
+  finally{loading(false);}
+}
+function compressProfileImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=reject;reader.onload=()=>{const img=new Image();img.onerror=reject;img.onload=()=>{const c=document.createElement('canvas'),scale=Math.min(1,320/Math.max(img.width,img.height));c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78));};img.src=reader.result;};reader.readAsDataURL(file);});}
+
+/* ---------- Boot ---------- */
+function renderAll(){
+  if(!DB)return;renderTop();renderSlider();renderNotice();renderThemes();renderHomeOrders();renderHomeLinks();renderAddMoney();renderFooters();
+  if(current==="order")renderOrders();if(current==="code")renderCodes();if(current==="account")renderAccount();if(current==="product"&&curCat)renderPkgs();
+}
+(async()=>{
+  $("splashLogo").innerHTML=LOGO_SVG(100);$("authLogo").innerHTML=LOGO_SVG(56);
+  try{await initDB()}catch(e){console.error(e);DB=normalizeDB(emptyDB());toast('Server connection failed')}
+  $("splashLogo").innerHTML=logoHtml(DB.settings.logo2,100);$("authLogo").innerHTML=logoHtml(DB.settings.logo2,56);
+  renderAll();
+  setInterval(tick,1000);
+  await wait(1200); // Wait for loading animation
+  $("splash").classList.add("out");
+  if(/^\/login\/?$/i.test(location.pathname)){authTab('login');openM('mAuth');}
+  else if(/^\/profile\/addwallet\/?$/i.test(location.pathname))go('add');
+  else if(/^\/profile\/order\/?$/i.test(location.pathname))go('order');
+  else if(/^\/profile\/?$/i.test(location.pathname))go('account');
+  await checkPaymentReturn();
+  const p=DB.settings.popup;if(!/^\/login\/?$/i.test(location.pathname)&&p&&p.enabled&&!sessionStorage.getItem("lunar_pop")){$("popTitle").textContent=brandText(p.title||"LUNAR TOPUP");$("popText").textContent=brandText(p.text||"LUNAR TOPUP-এ স্বাগতম।");$("popImg").src=p.image||"";$("popImageWrap").style.display=p.image?"grid":"none";openM("mPopup");sessionStorage.setItem("lunar_pop","1")}
+})();
+document.addEventListener("click",e=>{if(!e.target.closest("#fab"))$("fab").classList.remove("open")});
+document.querySelectorAll(".mask").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="mAuth"){m.classList.remove("on");syncModalLock()}}));
+</script>
+</body>
+</html>
